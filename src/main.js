@@ -2,6 +2,8 @@ import '@fontsource-variable/manrope';
 import '@fontsource-variable/jetbrains-mono';
 import './style.css';
 import { request } from './api.js';
+import { ExpressionEditor } from './expression-editor.js';
+import { ResultView, reusable, scientific } from './result-view.js';
 
 const byId = (id) => document.getElementById(id);
 const input = byId('expression');
@@ -18,6 +20,57 @@ const state = {
   angle: 'deg',
 };
 const pageSize = 20;
+const resultView = new ResultView(result, byId('copy-result'), byId('result-format'));
+const editor = new ExpressionEditor(input, invalidateResult, setStatus);
+let lastSubmitted = null;
+byId('copy-result').addEventListener('click', async () => {
+  if (resultView.raw === null) return;
+  try {
+    await navigator.clipboard.writeText(resultView.raw);
+    setStatus('已复制');
+  } catch {
+    setStatus('复制失败，请选择结果手动复制。', true);
+  }
+});
+byId('result-format').addEventListener('click', () => {
+  resultView.exponential = !resultView.exponential;
+  resultView.render();
+});
+let parameterTarget = null;
+const parameterDefinitions = {
+  root: ['任意次方根', '被开方数 x', '次数 n'],
+  logbase: ['任意底对数', '真数 x', '底数 b'],
+  perm: ['排列', '总数 n', '选取数 r'],
+  comb: ['组合', '总数 n', '选取数 r'],
+  mod: ['取余', '被除数 x', '除数 y'],
+};
+function openParameters(name) {
+  parameterTarget = { ...editor.target(), name };
+  const [title, first, second] = parameterDefinitions[name];
+  byId('parameter-title').textContent = title;
+  byId('parameter-first-label').textContent = first;
+  byId('parameter-second-label').textContent = second;
+  byId('parameter-first').value = parameterTarget.text;
+  byId('parameter-second').value = '';
+  byId('parameter-error').textContent = '';
+  byId('parameter-dialog').showModal();
+  byId(parameterTarget.text ? 'parameter-second' : 'parameter-first').focus();
+}
+byId('parameter-dialog').addEventListener('close', () => input.focus());
+byId('parameter-cancel').addEventListener('click', () => byId('parameter-dialog').close());
+byId('parameter-form').addEventListener('submit', (event) => {
+  event.preventDefault();
+  const first = byId('parameter-first').value.trim(),
+    second = byId('parameter-second').value.trim();
+  if (!first || !second) return;
+  const value = `${parameterTarget.name}((${first}),(${second}))`;
+  if (input.value.length - (parameterTarget.end - parameterTarget.start) + value.length > 500) {
+    byId('parameter-error').textContent = '表达式不能超过 500 个字符。';
+    return;
+  }
+  byId('parameter-dialog').close();
+  editor.replace(parameterTarget.start, parameterTarget.end, value);
+});
 
 function savePreference(key, value) {
   try {
@@ -36,7 +89,10 @@ function setMode(mode) {
   savePreference('calculator-mode', mode);
 }
 function setAngle(angle) {
-  if (state.angle !== angle) invalidateResult();
+  if (state.angle !== angle) {
+    editor.phase = 'editing';
+    invalidateResult();
+  }
   state.angle = angle;
   document
     .querySelectorAll('[data-angle]')
@@ -138,12 +194,12 @@ byId('science-keys').addEventListener('click', (event) => {
   if (button.dataset.memory) {
     if (button.dataset.memory === 'clear') memory = null;
     if (button.dataset.memory === 'store') {
-      if (result.textContent === '—' || !lastAnswer) return setStatus('请先计算。');
-      memory = result.textContent;
+      if (resultView.raw === null) return setStatus('请先计算。');
+      memory = resultView.raw;
     }
     if (button.dataset.memory === 'recall') {
       if (memory === null) return setStatus('暂无存储数值。');
-      insert(`(${memory})`);
+      insert(`(${reusable(memory)})`);
     }
     document
       .querySelector('[data-memory="recall"]')
@@ -152,16 +208,18 @@ byId('science-keys').addEventListener('click', (event) => {
   }
   if ('answer' in button.dataset) {
     if (lastAnswer === null) return setStatus('暂无上次结果。');
-    return insert(`(${lastAnswer})`);
+    return insert(`(${reusable(lastAnswer)})`);
   }
-  if (button.dataset.value) return insert(button.dataset.value);
-  const selected = input.value.slice(input.selectionStart, input.selectionEnd);
-  if (button.dataset.binary)
-    return insert(`${button.dataset.binary}(${selected ? selected + ',' : ''}`);
-  const prefix =
-    button.dataset.prefix ||
-    (button.dataset.function === 'reciprocal' ? '1/(' : `${button.dataset.function}(`);
-  insert(prefix + (selected ? selected + ')' : ''));
+  if (button.dataset.binary) return openParameters(button.dataset.binary);
+  if (button.dataset.value && !['^2', '^3'].includes(button.dataset.value))
+    return insert(button.dataset.value);
+  const suffix = ['^2', '^3'].includes(button.dataset.value) ? ')' + button.dataset.value : ')';
+  const prefix = ['^2', '^3'].includes(button.dataset.value)
+    ? '('
+    : button.dataset.prefix ||
+      (button.dataset.function === 'reciprocal' ? '1/(' : `${button.dataset.function}(`);
+  const operation = editor.wrap(prefix, suffix);
+  if (operation.applied && operation.completed) byId('calculation-form').requestSubmit();
 });
 
 function setStatus(message, error = false) {
@@ -170,7 +228,7 @@ function setStatus(message, error = false) {
 }
 
 function invalidateResult() {
-  result.textContent = '—';
+  resultView.set(null);
   byId('result-label').textContent = '等待计算';
   byId('steps-list').replaceChildren();
   byId('step-count').textContent = '';
@@ -178,21 +236,10 @@ function invalidateResult() {
 }
 
 function setExpression(value) {
-  input.value = value;
-  invalidateResult();
-  input.focus();
-  input.setSelectionRange(value.length, value.length);
+  editor.set(value);
 }
-
 function insert(value) {
-  if (state.busy) return;
-  const start = input.selectionStart ?? input.value.length;
-  const end = input.selectionEnd ?? start;
-  if (input.value.length - (end - start) + value.length > 500)
-    return setStatus('表达式不能超过 500 个字符。', true);
-  input.setRangeText(value, start, end, 'end');
-  invalidateResult();
-  input.focus();
+  if (!state.busy) editor.insert(value);
 }
 
 document.querySelector('.keypad').addEventListener('click', (event) => {
@@ -200,18 +247,18 @@ document.querySelector('.keypad').addEventListener('click', (event) => {
   if (!button || state.busy) return;
   if (button.dataset.value) insert(button.dataset.value);
   if (button.dataset.action === 'clear') setExpression('');
-  if (button.dataset.action === 'backspace') {
-    const end = input.selectionEnd ?? input.value.length;
-    const start = input.selectionStart ?? end;
-    input.setRangeText('', start === end ? Math.max(0, start - 1) : start, end, 'end');
-    invalidateResult();
-    input.focus();
-  }
+  if (button.dataset.action === 'backspace') editor.backspace();
 });
-input.addEventListener('input', invalidateResult);
 
 document.addEventListener('keydown', (event) => {
-  if (byId('delete-dialog').open || state.busy || event.ctrlKey || event.metaKey || event.altKey)
+  if (
+    document.querySelector('dialog[open]') ||
+    state.busy ||
+    event.ctrlKey ||
+    event.metaKey ||
+    event.altKey ||
+    event.isComposing
+  )
     return;
   if (event.target.closest('input') && event.target !== input) return;
   if (event.key === 'Escape') {
@@ -220,7 +267,7 @@ document.addEventListener('keydown', (event) => {
   } else if (event.key === 'Enter' && (event.target === input || event.target === document.body)) {
     event.preventDefault();
     byId('calculation-form').requestSubmit();
-  } else if (event.target === document.body && /^[0-9.+\-*/()]$/.test(event.key)) {
+  } else if (event.target === document.body && /^[0-9.eEπ+\-*/()^!%,]$/.test(event.key)) {
     event.preventDefault();
     insert(event.key);
   }
@@ -229,7 +276,11 @@ document.addEventListener('keydown', (event) => {
 byId('calculation-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   if (state.busy) return;
+  const signature = JSON.stringify([input.value, state.angle]);
+  if (signature === lastSubmitted && resultView.raw !== null) return;
+  const caret = [input.selectionStart, input.selectionEnd];
   state.busy = true;
+  editor.phase = 'requesting';
   invalidateResult();
   input.readOnly = true;
   document
@@ -247,7 +298,11 @@ byId('calculation-form').addEventListener('submit', async (event) => {
       body: JSON.stringify({ expression: input.value, angle_mode: state.angle }),
     });
     clearTimeout(slowMessage);
-    result.textContent = data.result;
+    resultView.set(data.result);
+    editor.answer = data.result;
+    editor.phase = 'completed';
+    lastSubmitted = signature;
+    input.focus();
     lastAnswer = data.result;
     byId('result-label').textContent = '计算结果';
     byId('step-count').textContent = `${data.steps.length} 步`;
@@ -269,6 +324,8 @@ byId('calculation-form').addEventListener('submit', async (event) => {
     byId('search').value = '';
     await loadHistory();
   } catch (error) {
+    editor.phase = 'error';
+    input.setSelectionRange(...caret);
     setStatus(error.message, true);
     void checkHealth();
   } finally {
@@ -313,7 +370,8 @@ function renderRecord(record) {
   }
   const answer = document.createElement('p');
   answer.className = 'record-result';
-  answer.textContent = `= ${record.result}`;
+  answer.textContent = `= ${record.result.length > 24 ? scientific(record.result) : record.result}`;
+  answer.title = record.result;
   const bottom = document.createElement('div');
   bottom.className = 'record-bottom';
   const time = document.createElement('time');

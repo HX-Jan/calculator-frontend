@@ -54,6 +54,12 @@
                 <span id="result-label" class="sr-only">计算结果</span
                 ><output id="result" aria-live="polite">0</output>
               </div>
+              <div class="result-actions">
+                <button type="button" id="copy-result" disabled>复制</button>
+                <button type="button" id="result-format" aria-pressed="false" disabled>
+                  科学计数
+                </button>
+              </div>
               <div id="calculation-status" class="calculation-status" role="status"></div>
             </div>
             <div id="science-keys" class="science-keys" aria-label="科学运算" hidden>
@@ -124,6 +130,20 @@
         </aside>
       </div>
     </main>
+    <dialog id="parameter-dialog" aria-labelledby="parameter-title">
+      <form id="parameter-form">
+        <h2 id="parameter-title"></h2>
+        <label for="parameter-first" id="parameter-first-label"></label>
+        <input id="parameter-first" type="text" maxlength="240" required autocomplete="off" />
+        <label for="parameter-second" id="parameter-second-label"></label>
+        <input id="parameter-second" type="text" maxlength="240" required autocomplete="off" />
+        <p id="parameter-error" role="status"></p>
+        <div class="dialog-actions">
+          <button type="button" id="parameter-cancel">取消</button
+          ><button type="submit">确定</button>
+        </div>
+      </form>
+    </dialog>
     <dialog id="delete-dialog">
       <h2>删除这条记录？</h2>
       <p id="delete-expression"></p>

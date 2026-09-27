@@ -625,3 +625,132 @@ dialog p {
   color: var(--ink);
   background: var(--hover);
 }
+
+.result-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 6px;
+}
+.result-actions button {
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 11px;
+  padding: 4px;
+}
+#result {
+  display: block;
+  max-width: 100%;
+  max-height: 110px;
+  overflow: auto;
+}
+#parameter-dialog label {
+  margin-top: 18px;
+}
+#parameter-dialog input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  background: var(--key);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+#parameter-error {
+  color: var(--error);
+}
+@media (min-width: 681px) {
+  .topbar {
+    padding-top: 10px;
+  }
+  .workspace {
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+  .calculator,
+  .history {
+    padding: 20px;
+  }
+  .display {
+    padding: 10px 0 8px;
+  }
+  #expression {
+    padding-top: 4px;
+    font-size: 20px;
+  }
+  #result {
+    font-size: 36px;
+    max-height: 74px;
+  }
+  .result-row {
+    margin-top: 4px;
+  }
+  .calculation-status {
+    min-height: 23px;
+    padding-top: 3px;
+  }
+  .keypad,
+  .science-page,
+  .science-keys,
+  .science-toolbar {
+    gap: 5px;
+  }
+  .science-keys {
+    margin-bottom: 8px;
+  }
+  .science-keys button {
+    min-height: 34px;
+  }
+  .science-toolbar button {
+    min-height: 26px;
+  }
+  .key {
+    height: 42px;
+    font-size: 21px;
+  }
+  .steps {
+    margin-top: 12px;
+  }
+  .steps summary {
+    padding-top: 10px;
+  }
+  .history-list {
+    max-height: 430px;
+  }
+}
+@media (max-width: 680px) {
+  .result-actions button,
+  .science-toolbar button,
+  .mode-switch button {
+    min-height: 44px;
+  }
+  .display {
+    padding-top: 16px;
+  }
+}
+@media (min-width: 681px) {
+  .calculator,
+  .history {
+    padding: 16px;
+  }
+  .display {
+    padding: 6px 0;
+  }
+  .key {
+    height: 40px;
+  }
+  .science-keys button {
+    min-height: 32px;
+  }
+  .science-toolbar button {
+    min-height: 24px;
+  }
+}
+#result {
+  white-space: nowrap;
+  overflow-wrap: normal;
+  overflow-x: auto;
+  overflow-y: hidden;
+  width: 100%;
+}

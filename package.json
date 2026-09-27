@@ -10,7 +10,8 @@
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "check": "node --check src/main.js && node --check src/api.js"
+    "check": "node --check src/main.js && node --check src/api.js && node --check src/expression-editor.js && node --check src/result-view.js",
+    "test": "node --test"
   },
   "devDependencies": {
     "prettier": "3.9.9",
