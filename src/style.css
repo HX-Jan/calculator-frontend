@@ -607,3 +607,21 @@ dialog p {
   color: var(--muted);
   margin-left: 5px;
 }
+.science-toolbar,
+.science-page {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.science-toolbar button {
+  min-height: 32px;
+  font-size: 11px;
+  border: 0;
+  color: var(--muted);
+}
+.science-toolbar button[aria-pressed='true'],
+.science-toolbar .has-memory {
+  color: var(--ink);
+  background: var(--hover);
+}

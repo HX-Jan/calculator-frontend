@@ -57,18 +57,13 @@
               <div id="calculation-status" class="calculation-status" role="status"></div>
             </div>
             <div id="science-keys" class="science-keys" aria-label="科学运算" hidden>
-              <button type="button" data-value="^2" aria-label="平方">x²</button>
-              <button type="button" data-value="^" aria-label="乘方">xʸ</button>
-              <button type="button" data-function="sqrt" aria-label="开平方">√</button>
-              <button type="button" data-function="reciprocal" aria-label="倒数">1/x</button>
-              <button type="button" data-function="sin">sin</button>
-              <button type="button" data-function="cos">cos</button>
-              <button type="button" data-function="tan">tan</button>
-              <button type="button" data-value="!" aria-label="阶乘">x!</button>
-              <button type="button" data-function="ln">ln</button>
-              <button type="button" data-function="log">log</button>
-              <button type="button" data-value="π" aria-label="圆周率">π</button>
-              <button type="button" data-value="e" aria-label="自然常数">e</button>
+              <div class="science-toolbar">
+                <button type="button" id="second-function" aria-pressed="false">2nd</button>
+                <button type="button" data-memory="clear" title="清除存储">MC</button>
+                <button type="button" data-memory="recall" title="读取存储">MR</button>
+                <button type="button" data-memory="store" title="存储结果">MS</button>
+              </div>
+              <div id="science-page" class="science-page"></div>
             </div>
             <div class="keypad" aria-label="数字与运算符键盘">
               <button type="button" data-action="clear" class="key utility clear">AC</button

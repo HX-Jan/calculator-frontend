@@ -61,12 +61,106 @@ try {
 } catch {
   /* Defaults work without storage. */
 }
+let lastAnswer = null;
+let memory = null;
+let secondFunction = false;
+const scientificPages = [
+  [
+    ['x²', 'value', '^2', '平方'],
+    ['xʸ', 'value', '^', '乘方'],
+    ['√', 'function', 'sqrt', '开平方'],
+    ['1/x', 'function', 'reciprocal', '倒数'],
+    ['sin', 'function', 'sin'],
+    ['cos', 'function', 'cos'],
+    ['tan', 'function', 'tan'],
+    ['x!', 'value', '!', '阶乘'],
+    ['ln', 'function', 'ln'],
+    ['log', 'function', 'log'],
+    ['π', 'value', 'π', '圆周率'],
+    ['e', 'value', 'e', '自然常数'],
+    ['|x|', 'function', 'abs', '绝对值'],
+    ['%', 'value', '%', '百分比'],
+    ['EXP', 'value', 'E', '科学计数法'],
+    ['Ans', 'answer', '', '上次结果'],
+    ['x³', 'value', '^3', '立方'],
+    ['∛', 'function', 'cbrt', '立方根'],
+    ['eˣ', 'function', 'exp', '自然指数'],
+    ['10ˣ', 'prefix', '10^(', '十的乘方'],
+  ],
+  [
+    ['asin', 'function', 'asin', '反正弦'],
+    ['acos', 'function', 'acos', '反余弦'],
+    ['atan', 'function', 'atan', '反正切'],
+    ['ⁿ√x', 'binary', 'root', '任意次方根'],
+    ['sinh', 'function', 'sinh'],
+    ['cosh', 'function', 'cosh'],
+    ['tanh', 'function', 'tanh'],
+    ['logₐ', 'binary', 'logbase', '任意底对数'],
+    ['asinh', 'function', 'asinh'],
+    ['acosh', 'function', 'acosh'],
+    ['atanh', 'function', 'atanh'],
+    ['mod', 'binary', 'mod', '取余'],
+    ['nPr', 'binary', 'perm', '排列'],
+    ['nCr', 'binary', 'comb', '组合'],
+    ['⌊x⌋', 'function', 'floor', '向下取整'],
+    ['⌈x⌉', 'function', 'ceil', '向上取整'],
+    [',', 'value', ',', '参数分隔符'],
+    ['±', 'prefix', '-(', '正负号'],
+    ['EXP', 'value', 'E', '科学计数法'],
+    ['Ans', 'answer', '', '上次结果'],
+  ],
+];
+function renderScienceKeys() {
+  byId('science-page').replaceChildren(
+    ...scientificPages[Number(secondFunction)].map(([label, action, value, title]) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = label;
+      button.dataset[action] = value;
+      if (title) {
+        button.title = title;
+        button.setAttribute('aria-label', title);
+      }
+      return button;
+    }),
+  );
+  byId('second-function').setAttribute('aria-pressed', String(secondFunction));
+}
+renderScienceKeys();
 byId('science-keys').addEventListener('click', (event) => {
   const button = event.target.closest('button');
   if (!button || state.busy) return;
+  if (button.id === 'second-function') {
+    secondFunction = !secondFunction;
+    renderScienceKeys();
+    return;
+  }
+  if (button.dataset.memory) {
+    if (button.dataset.memory === 'clear') memory = null;
+    if (button.dataset.memory === 'store') {
+      if (result.textContent === '—' || !lastAnswer) return setStatus('请先计算。');
+      memory = result.textContent;
+    }
+    if (button.dataset.memory === 'recall') {
+      if (memory === null) return setStatus('暂无存储数值。');
+      insert(`(${memory})`);
+    }
+    document
+      .querySelector('[data-memory="recall"]')
+      .classList.toggle('has-memory', memory !== null);
+    return;
+  }
+  if ('answer' in button.dataset) {
+    if (lastAnswer === null) return setStatus('暂无上次结果。');
+    return insert(`(${lastAnswer})`);
+  }
   if (button.dataset.value) return insert(button.dataset.value);
   const selected = input.value.slice(input.selectionStart, input.selectionEnd);
-  const prefix = button.dataset.function === 'reciprocal' ? '1/(' : `${button.dataset.function}(`;
+  if (button.dataset.binary)
+    return insert(`${button.dataset.binary}(${selected ? selected + ',' : ''}`);
+  const prefix =
+    button.dataset.prefix ||
+    (button.dataset.function === 'reciprocal' ? '1/(' : `${button.dataset.function}(`);
   insert(prefix + (selected ? selected + ')' : ''));
 });
 
@@ -94,7 +188,8 @@ function insert(value) {
   if (state.busy) return;
   const start = input.selectionStart ?? input.value.length;
   const end = input.selectionEnd ?? start;
-  if (input.value.length - (end - start) + value.length > 500) return;
+  if (input.value.length - (end - start) + value.length > 500)
+    return setStatus('表达式不能超过 500 个字符。', true);
   input.setRangeText(value, start, end, 'end');
   invalidateResult();
   input.focus();
@@ -153,6 +248,7 @@ byId('calculation-form').addEventListener('submit', async (event) => {
     });
     clearTimeout(slowMessage);
     result.textContent = data.result;
+    lastAnswer = data.result;
     byId('result-label').textContent = '计算结果';
     byId('step-count').textContent = `${data.steps.length} 步`;
     const steps = data.steps.map((step) => {
@@ -209,7 +305,7 @@ function renderRecord(record) {
   const expression = document.createElement('p');
   expression.className = 'record-expression';
   expression.textContent = record.expression.replaceAll('*', '×').replaceAll('/', '÷');
-  if (/\b(sin|cos|tan)\s*\(/.test(record.expression)) {
+  if (/\b(sin|cos|tan|asin|acos|atan)\s*\(/.test(record.expression)) {
     const unit = document.createElement('span');
     unit.className = 'angle-label';
     unit.textContent = (record.angle_mode || 'deg').toUpperCase();
