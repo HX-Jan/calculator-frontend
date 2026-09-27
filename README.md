@@ -55,3 +55,12 @@ Stop the development server before previewing on the same port. Backend tests li
 Create a Render Static Site connected to this repository. Build command: `npm ci && npm run build`; publish directory: `dist`. Set `VITE_API_BASE_URL` to the backend HTTPS origin, then rebuild. Set the backend `ALLOWED_ORIGINS` to this site's origin. Public deployment is not automatically performed by this repository upload.
 
 Do not put database passwords in `VITE_*` variables: they are public client-side configuration. See [Render static sites](https://render.com/docs/static-sites) and [code standards](codestyle.md).
+
+
+## 普通与科学模式
+
+顶部普通／科学按钮切换键盘并记住选择，切换不清空输入或结果。科学模式提供平方、乘方、开方、倒数、阶乘、三角函数、对数与 π/e；DEG 表示角度、RAD 表示弧度，默认 DEG。改变角度单位会清除旧结果，需重新计算。
+
+函数键包裹选中的表达式，未选中时插入函数开头，补齐右括号后按等号或 Enter。例如 `sin(30)`（DEG）为 `0.5`，`sin(pi/2)`（RAD）为 `1`。倒数键插入 `1/(`，平方插入 `^2`。乘号必须明确输入。
+
+科学表达式复用时自动展开科学键盘，恢复记录的角度单位。全部运算在后端完成。三角函数为约 15 位有效数字的近似计算；定义域错误不会保存记录。先升级后端，再发布此前端。

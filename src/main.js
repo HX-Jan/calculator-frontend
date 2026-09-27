@@ -7,8 +7,68 @@ const byId = (id) => document.getElementById(id);
 const input = byId('expression');
 const result = byId('result');
 const status = byId('calculation-status');
-const state = { busy: false, page: 1, total: 0, query: '', historyVersion: 0, deleteId: null };
+const state = {
+  busy: false,
+  page: 1,
+  total: 0,
+  query: '',
+  historyVersion: 0,
+  deleteId: null,
+  mode: 'basic',
+  angle: 'deg',
+};
 const pageSize = 20;
+
+function savePreference(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    /* Optional storage. */
+  }
+}
+function setMode(mode) {
+  state.mode = mode;
+  byId('science-keys').hidden = mode !== 'scientific';
+  byId('angle-switch').hidden = mode !== 'scientific';
+  document
+    .querySelectorAll('[data-mode]')
+    .forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.mode === mode)));
+  savePreference('calculator-mode', mode);
+}
+function setAngle(angle) {
+  if (state.angle !== angle) invalidateResult();
+  state.angle = angle;
+  document
+    .querySelectorAll('[data-angle]')
+    .forEach((button) =>
+      button.setAttribute('aria-pressed', String(button.dataset.angle === angle)),
+    );
+  savePreference('calculator-angle', angle);
+}
+document.querySelectorAll('[data-mode]').forEach((button) =>
+  button.addEventListener('click', () => {
+    if (!state.busy) setMode(button.dataset.mode);
+  }),
+);
+document.querySelectorAll('[data-angle]').forEach((button) =>
+  button.addEventListener('click', () => {
+    if (!state.busy) setAngle(button.dataset.angle);
+  }),
+);
+try {
+  setMode(localStorage.getItem('calculator-mode') === 'scientific' ? 'scientific' : 'basic');
+  setAngle(localStorage.getItem('calculator-angle') === 'rad' ? 'rad' : 'deg');
+} catch {
+  /* Defaults work without storage. */
+}
+byId('science-keys').addEventListener('click', (event) => {
+  const button = event.target.closest('button');
+  if (!button || state.busy) return;
+  if (button.dataset.value) return insert(button.dataset.value);
+  const selected = input.value.slice(input.selectionStart, input.selectionEnd);
+  const prefix = button.dataset.function === 'reciprocal' ? '1/(' : `${button.dataset.function}(`;
+  insert(prefix + (selected ? selected + ')' : ''));
+});
 
 function setStatus(message, error = false) {
   status.textContent = message;
@@ -77,15 +137,19 @@ byId('calculation-form').addEventListener('submit', async (event) => {
   state.busy = true;
   invalidateResult();
   input.readOnly = true;
-  document.querySelectorAll('.keypad button, [data-example], .reuse').forEach((button) => {
-    button.disabled = true;
-  });
+  document
+    .querySelectorAll(
+      '.keypad button, .science-keys button, [data-mode], [data-angle], [data-example], .reuse',
+    )
+    .forEach((button) => {
+      button.disabled = true;
+    });
   setStatus('计算中…');
   const slowMessage = setTimeout(() => setStatus('服务启动中…'), 6000);
   try {
     const data = await request('/api/calculate', {
       method: 'POST',
-      body: JSON.stringify({ expression: input.value }),
+      body: JSON.stringify({ expression: input.value, angle_mode: state.angle }),
     });
     clearTimeout(slowMessage);
     result.textContent = data.result;
@@ -115,9 +179,13 @@ byId('calculation-form').addEventListener('submit', async (event) => {
     clearTimeout(slowMessage);
     state.busy = false;
     input.readOnly = false;
-    document.querySelectorAll('.keypad button, [data-example], .reuse').forEach((button) => {
-      button.disabled = false;
-    });
+    document
+      .querySelectorAll(
+        '.keypad button, .science-keys button, [data-mode], [data-angle], [data-example], .reuse',
+      )
+      .forEach((button) => {
+        button.disabled = false;
+      });
   }
 });
 
@@ -141,6 +209,12 @@ function renderRecord(record) {
   const expression = document.createElement('p');
   expression.className = 'record-expression';
   expression.textContent = record.expression.replaceAll('*', '×').replaceAll('/', '÷');
+  if (/\b(sin|cos|tan)\s*\(/.test(record.expression)) {
+    const unit = document.createElement('span');
+    unit.className = 'angle-label';
+    unit.textContent = (record.angle_mode || 'deg').toUpperCase();
+    expression.append(' ', unit);
+  }
   const answer = document.createElement('p');
   answer.className = 'record-result';
   answer.textContent = `= ${record.result}`;
@@ -163,7 +237,11 @@ function renderRecord(record) {
   reuse.textContent = '复用';
   reuse.disabled = state.busy;
   reuse.addEventListener('click', () => {
-    if (!state.busy) setExpression(record.expression);
+    if (!state.busy) {
+      if (/[a-zπ^!]/i.test(record.expression)) setMode('scientific');
+      setAngle(record.angle_mode === 'rad' ? 'rad' : 'deg');
+      setExpression(record.expression);
+    }
   });
   const remove = document.createElement('button');
   remove.type = 'button';
