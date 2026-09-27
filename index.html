@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f7f8fa" />
+    <meta name="description" content="清晰计算，安心回溯。支持复合表达式与持久化历史的计算器。" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Clarity · 清晰计算</title>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Clarity 首页"
+        ><span class="brand-mark">c<span>·</span></span
+        ><span>clarity<span class="brand-sub">清晰计算</span></span></a
+      >
+      <div class="header-actions">
+        <span id="connection" class="connection">正在连接服务</span
+        ><button
+          id="theme"
+          class="icon-button"
+          type="button"
+          aria-label="切换至深色主题"
+          title="切换主题"
+        >
+          ◐
+        </button>
+      </div>
+    </header>
+    <main class="workspace">
+      <section class="intro">
+        <div>
+          <p class="eyebrow">A LITTLE SPACE TO THINK</p>
+          <h1>让每一步，都清晰。</h1>
+          <p class="subtitle">从一个简单的算式开始，留住每一次思考。</p>
+        </div>
+        <span class="edition">CALCULATOR / 01</span>
+      </section>
+      <div class="layout">
+        <section class="calculator card" aria-label="计算器">
+          <div class="section-heading">
+            <h2><span class="small-icon">＋</span> 标准计算</h2>
+            <span class="tag">28 位有效数字</span>
+          </div>
+          <form id="calculation-form" novalidate>
+            <div class="display">
+              <label for="expression">输入表达式 <span>支持括号与正负数</span></label>
+              <input
+                id="expression"
+                name="expression"
+                type="text"
+                inputmode="text"
+                placeholder="例如 (12 + 8) × 3"
+                autocomplete="off"
+                spellcheck="false"
+                maxlength="500"
+                aria-describedby="input-help"
+              />
+              <div class="result-row">
+                <span id="result-label">计算结果</span
+                ><output id="result" aria-live="polite">0</output>
+              </div>
+              <div id="calculation-status" class="calculation-status" role="status">
+                准备好了，开始计算吧。
+              </div>
+            </div>
+            <div class="keypad" aria-label="数字与运算符键盘">
+              <button type="button" data-action="clear" class="key utility clear">AC</button
+              ><button type="button" data-value="(" class="key utility">(</button
+              ><button type="button" data-value=")" class="key utility">)</button
+              ><button type="button" data-action="backspace" class="key utility" aria-label="退格">
+                ⌫
+              </button>
+              <button type="button" data-value="7" class="key">7</button
+              ><button type="button" data-value="8" class="key">8</button
+              ><button type="button" data-value="9" class="key">9</button
+              ><button type="button" data-value="÷" class="key operator" aria-label="除">÷</button>
+              <button type="button" data-value="4" class="key">4</button
+              ><button type="button" data-value="5" class="key">5</button
+              ><button type="button" data-value="6" class="key">6</button
+              ><button type="button" data-value="×" class="key operator" aria-label="乘">×</button>
+              <button type="button" data-value="1" class="key">1</button
+              ><button type="button" data-value="2" class="key">2</button
+              ><button type="button" data-value="3" class="key">3</button
+              ><button type="button" data-value="-" class="key operator" aria-label="减">−</button>
+              <button type="button" data-value="0" class="key">0</button
+              ><button type="button" data-value="." class="key">.</button
+              ><button type="submit" id="calculate" class="key equals" aria-label="计算">=</button
+              ><button type="button" data-value="+" class="key operator" aria-label="加">+</button>
+            </div>
+          </form>
+          <p class="keyboard-hint" id="input-help">
+            <kbd>Enter</kbd> 计算 <span>·</span> <kbd>Esc</kbd> 清空 <span>·</span> 支持键盘输入
+          </p>
+          <details id="steps-panel" class="steps">
+            <summary>查看计算步骤 <span id="step-count">等待计算</span></summary>
+            <ol id="steps-list">
+              <li>完成计算后，可在这里查看运算顺序。</li>
+            </ol>
+          </details>
+        </section>
+        <aside class="history card" aria-label="计算历史">
+          <div class="section-heading">
+            <h2>
+              <span class="small-icon">↺</span> 计算历史
+              <span id="history-count" class="count">0</span>
+            </h2>
+            <button type="button" id="refresh" class="text-button">↻ 刷新</button>
+          </div>
+          <p class="history-description">每次计算，均为你妥善保存。</p>
+          <form id="search-form" class="search">
+            <span aria-hidden="true">⌕</span
+            ><input
+              id="search"
+              type="search"
+              placeholder="搜索表达式或结果"
+              aria-label="搜索表达式或结果"
+              maxlength="500"
+            /><button type="submit">搜索</button>
+          </form>
+          <div id="history-status" class="history-status" role="status"></div>
+          <div id="history-list" class="history-list"></div>
+          <div class="pagination">
+            <span id="page-info">第 1 / 1 页</span>
+            <div>
+              <button id="previous" type="button" aria-label="上一页">←</button
+              ><button id="next" type="button" aria-label="下一页">→</button>
+            </div>
+          </div>
+          <p class="storage-note">
+            <span>●</span> 历史保存在服务端数据库中<br /><span class="note-indent"
+              >当前为共享演示空间，所有访客共用历史</span
+            >
+          </p>
+        </aside>
+      </div>
+      <section class="quick-start">
+        <span>试试这些</span
+        ><button type="button" data-example="(12+8)*3">(12 + 8) × 3 <span>↗</span></button
+        ><button type="button" data-example="0.1+0.2">0.1 + 0.2 <span>↗</span></button
+        ><button type="button" data-example="3*-2">3 × (−2) <span>↗</span></button>
+      </section>
+      <footer>
+        <span>CLARITY <span class="footer-dot">/</span> 简单输入，清晰结果。</span
+        ><span>四则运算 · 计算步骤 · 历史回溯</span>
+      </footer>
+    </main>
+    <dialog id="delete-dialog">
+      <h2>删除这条记录？</h2>
+      <p id="delete-expression"></p>
+      <p>删除后无法恢复，其他记录不受影响。</p>
+      <div class="dialog-actions">
+        <button id="cancel-delete" type="button">取消</button
+        ><button id="confirm-delete" type="button" class="danger">删除记录</button>
+      </div>
+    </dialog>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
