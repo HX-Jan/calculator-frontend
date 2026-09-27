@@ -1,3 +1,5 @@
+import '@fontsource-variable/manrope';
+import '@fontsource-variable/jetbrains-mono';
 import './style.css';
 import { request } from './api.js';
 
@@ -201,11 +203,11 @@ async function loadHistory() {
       const symbol = document.createElement('span');
       symbol.textContent = '↺';
       const title = document.createElement('strong');
-      title.textContent = state.query ? '没有找到匹配记录' : '你的思考，从这里开始';
+      title.textContent = state.query ? '没有找到匹配记录' : '还没有计算记录';
       const hint = document.createElement('p');
       hint.textContent = state.query
         ? '换个关键词，再试一次。'
-        : '完成第一次计算，历史将自动出现在这里。';
+        : '输入一个算式，结果会自动保存在这里。';
       empty.append(symbol, title, hint);
       byId('history-list').append(empty);
     }
@@ -279,16 +281,16 @@ function applyTheme(theme) {
 }
 let savedTheme;
 try {
-  savedTheme = localStorage.getItem('clarity-theme');
+  savedTheme = localStorage.getItem('clarity-theme-v2');
 } catch {
   /* Storage can be disabled. */
 }
-applyTheme(savedTheme === 'dark' ? 'dark' : 'light');
+applyTheme(savedTheme === 'light' ? 'light' : 'dark');
 byId('theme').addEventListener('click', () => {
   const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
   applyTheme(theme);
   try {
-    localStorage.setItem('clarity-theme', theme);
+    localStorage.setItem('clarity-theme-v2', theme);
   } catch {
     /* Theme still works for this visit. */
   }

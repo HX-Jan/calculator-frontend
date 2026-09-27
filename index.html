@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f7f8fa" />
+    <meta name="theme-color" content="#101521" />
     <meta name="description" content="清晰计算，安心回溯。支持复合表达式与持久化历史的计算器。" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Clarity · 清晰计算</title>
@@ -11,8 +11,8 @@
   <body>
     <header class="topbar">
       <a class="brand" href="./" aria-label="Clarity 首页"
-        ><span class="brand-mark">c<span>·</span></span
-        ><span>clarity<span class="brand-sub">清晰计算</span></span></a
+        ><span class="brand-mark">⌘</span
+        ><span>Clarity<span class="brand-sub">计算与记录</span></span></a
       >
       <div class="header-actions">
         <span id="connection" class="connection">正在连接服务</span
@@ -30,16 +30,18 @@
     <main class="workspace">
       <section class="intro">
         <div>
-          <p class="eyebrow">A LITTLE SPACE TO THINK</p>
-          <h1>让每一步，都清晰。</h1>
-          <p class="subtitle">从一个简单的算式开始，留住每一次思考。</p>
+          <h1>计算工作台<span class="heading-dot">.</span></h1>
+          <p class="subtitle">专注眼前的算式，随时回到之前的结果。</p>
         </div>
-        <span class="edition">CALCULATOR / 01</span>
+        <div class="intro-note">
+          <span class="note-symbol">⌨</span
+          ><span>键盘与鼠标，随你习惯。<br /><small>按 Enter 计算，Esc 清空</small></span>
+        </div>
       </section>
       <div class="layout">
         <section class="calculator card" aria-label="计算器">
           <div class="section-heading">
-            <h2><span class="small-icon">＋</span> 标准计算</h2>
+            <h2><span class="small-icon">⊞</span> 标准计算</h2>
             <span class="tag">28 位有效数字</span>
           </div>
           <form id="calculation-form" novalidate>
@@ -61,7 +63,7 @@
                 ><output id="result" aria-live="polite">0</output>
               </div>
               <div id="calculation-status" class="calculation-status" role="status">
-                准备好了，开始计算吧。
+                输入算式，按 = 获取结果。
               </div>
             </div>
             <div class="keypad" aria-label="数字与运算符键盘">
@@ -107,7 +109,7 @@
             </h2>
             <button type="button" id="refresh" class="text-button">↻ 刷新</button>
           </div>
-          <p class="history-description">每次计算，均为你妥善保存。</p>
+          <p class="history-description">最近计算，一目了然。</p>
           <form id="search-form" class="search">
             <span aria-hidden="true">⌕</span
             ><input
@@ -128,21 +130,21 @@
             </div>
           </div>
           <p class="storage-note">
-            <span>●</span> 历史保存在服务端数据库中<br /><span class="note-indent"
-              >当前为共享演示空间，所有访客共用历史</span
+            <span>●</span> 计算记录自动保存<br /><span class="note-indent"
+              >共享演示空间，请勿输入敏感信息</span
             >
           </p>
         </aside>
       </div>
       <section class="quick-start">
-        <span>试试这些</span
+        <span>快速开始</span
         ><button type="button" data-example="(12+8)*3">(12 + 8) × 3 <span>↗</span></button
         ><button type="button" data-example="0.1+0.2">0.1 + 0.2 <span>↗</span></button
         ><button type="button" data-example="3*-2">3 × (−2) <span>↗</span></button>
       </section>
       <footer>
-        <span>CLARITY <span class="footer-dot">/</span> 简单输入，清晰结果。</span
-        ><span>四则运算 · 计算步骤 · 历史回溯</span>
+        <span>Clarity <span class="footer-dot">/</span> 你的日常计算工作台</span
+        ><span>支持括号、正负数与小数</span>
       </footer>
     </main>
     <dialog id="delete-dialog">
