@@ -160,7 +160,7 @@ function renderRecord(record) {
   const reuse = document.createElement('button');
   reuse.type = 'button';
   reuse.className = 'text-button reuse';
-  reuse.textContent = '复用 ↗';
+  reuse.textContent = '复用';
   reuse.disabled = state.busy;
   reuse.addEventListener('click', () => {
     if (!state.busy) setExpression(record.expression);
@@ -281,16 +281,16 @@ function applyTheme(theme) {
 }
 let savedTheme;
 try {
-  savedTheme = localStorage.getItem('clarity-theme-v2');
+  savedTheme = localStorage.getItem('clarity-theme-v3');
 } catch {
   /* Storage can be disabled. */
 }
-applyTheme(savedTheme === 'light' ? 'light' : 'dark');
+applyTheme(savedTheme === 'dark' ? 'dark' : 'light');
 byId('theme').addEventListener('click', () => {
   const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
   applyTheme(theme);
   try {
-    localStorage.setItem('clarity-theme-v2', theme);
+    localStorage.setItem('clarity-theme-v3', theme);
   } catch {
     /* Theme still works for this visit. */
   }

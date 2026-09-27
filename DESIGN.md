@@ -1,42 +1,21 @@
 # Clarity interface direction
 
-Design reference process: [Anthropic frontend-design skill](https://github.com/anthropics/skills/tree/main/skills/frontend-design), installed and read locally for this redesign. No third-party website template was copied.
+Reference: [minimalist-ui](https://github.com/Leonxlnx/taste-skill/tree/main/skills/minimalist-skill), installed and read locally. The user's request for a simple calculator takes priority over the skill's optional editorial decoration and animation.
 
 ## Intent
 
-A focused desktop calculation instrument with a readable history ledger. The calculator itself is the main visual object, not a promotional hero. Users should recognize the input, answer, keypad and saved calculations immediately.
+A small everyday tool: expression, result, keypad and saved history. No hero, marketing copy, gradients, raised keycaps or ornamental icons. A single quiet frame groups calculation and history, separated by a thin line.
 
-## Tokens
+## Tokens and layout
 
-- Midnight `#101521`: page canvas.
-- Graphite blue `#1b2333`: instrument enclosure.
-- Raised slate `#293449`: numeric keys.
-- Mist `#edf0fa`: primary text.
-- Lavender `#b7c4ff`: operation controls and active accents.
-- Steel `#98a6be`: supporting text.
+- Canvas: #fafafa; surface: #ffffff.
+- Text: #242424; secondary: #737373.
+- Dividers: #eaeaea; numeric keys: #f5f5f5.
+- Black equals button supplies the only strong visual accent.
+- Locally bundled Manrope for UI and tabular results, JetBrains Mono for worked steps, system Chinese fallback.
+- Desktop: 832px frame, calculator and history in a 1.2:1 split. Mobile: one column, history below.
+- Light theme by default; neutral dark theme optional and persisted.
 
-Type: locally bundled Manrope Variable for controls and interface; JetBrains Mono Variable for expressions and results. Chinese falls back to Microsoft YaHei/PingFang SC. Clear scale from 12px supporting text to 56px results; no tiny decorative labels.
+## Interaction review
 
-## Layout
-
-```
-brand                                    service  theme
-
-计算工作台                    example expressions
-┌────────────────────────────┬─────────────────────┐
-│ standard         precision │ history     refresh │
-│                            │ search              │
-│ expression                 │                     │
-│                  result    │ expression = result │
-│                            │ time / reuse/delete │
-│ sculpted 4-column keypad   │                     │
-│ keyboard help              │ paging              │
-│ collapsible worked steps   │ shared-space note   │
-└────────────────────────────┴─────────────────────┘
-```
-
-The two areas share one enclosure rather than unrelated floating cards. Results align right; history aligns left. On narrow screens the history follows the calculator vertically. Keycaps supply the main depth; backgrounds and typography stay restrained.
-
-## Review against rejected design
-
-Removed the decorative English eyebrow, arbitrary edition number, tiny footer slogans and overly spacious marketing header. Avoided the common near-black/neon-green palette. A cool instrument palette, distinct key hierarchy and history ledger make the visual choices specific to a calculator. Both dark and light themes retain readable contrast, keyboard focus and reduced-motion support.
+Preserves keyboard entry, visible focus, real backend calculations, error messages, searchable history, deletion confirmation and pagination. Steps stay collapsed until requested. Numeric keys have 58px touch targets. No decorative motion; reduced-motion preference is respected.

@@ -2,7 +2,7 @@
 
 A responsive calculator interface with keyboard input, light/dark themes, server-provided calculation steps, and searchable paginated history.
 
-The redesigned interface uses a midnight-blue instrument enclosure, raised keycaps and locally bundled Manrope / JetBrains Mono fonts. Dark mode is the new default; the theme button switches to a matching light palette. See [design decisions](DESIGN.md). Font licenses are included in `public/licenses`.
+The interface uses a restrained monochrome palette, flat keys and a compact two-column layout. Light mode is the default; dark mode remains available. Manrope and JetBrains Mono are bundled locally. See [design decisions](DESIGN.md); font licenses are included in `public/licenses`.
 
 ![Clarity calculator local demonstration](docs/preview.png)
 
