@@ -19,8 +19,8 @@ function invalidateResult() {
   result.textContent = '—';
   byId('result-label').textContent = '等待计算';
   byId('steps-list').replaceChildren();
-  byId('step-count').textContent = '等待计算';
-  setStatus('按 Enter 或 =，获取新的计算结果。');
+  byId('step-count').textContent = '';
+  setStatus('');
 }
 
 function setExpression(value) {
@@ -80,8 +80,8 @@ byId('calculation-form').addEventListener('submit', async (event) => {
   document.querySelectorAll('.keypad button, [data-example], .reuse').forEach((button) => {
     button.disabled = true;
   });
-  setStatus('正在计算并保存，请稍候…');
-  const slowMessage = setTimeout(() => setStatus('服务可能正在启动，请稍候；无需重复提交。'), 6000);
+  setStatus('计算中…');
+  const slowMessage = setTimeout(() => setStatus('服务启动中…'), 6000);
   try {
     const data = await request('/api/calculate', {
       method: 'POST',
@@ -102,7 +102,7 @@ byId('calculation-form').addEventListener('submit', async (event) => {
       steps.push(item);
     }
     byId('steps-list').replaceChildren(...steps);
-    setStatus('已完成计算，并保存至历史。');
+    setStatus('');
     setConnection(true);
     state.page = 1;
     state.query = '';
@@ -122,7 +122,7 @@ byId('calculation-form').addEventListener('submit', async (event) => {
 });
 
 function setConnection(connected) {
-  byId('connection').textContent = connected ? '服务已连接' : '服务未连接';
+  byId('connection').textContent = connected ? '' : '服务未连接';
   byId('connection').classList.toggle('connected', connected);
 }
 
@@ -208,7 +208,7 @@ async function loadHistory() {
       hint.textContent = state.query
         ? '换个关键词，再试一次。'
         : '输入一个算式，结果会自动保存在这里。';
-      empty.append(symbol, title, hint);
+      empty.append(title);
       byId('history-list').append(empty);
     }
     byId('page-info').textContent = `第 ${state.page} / ${lastPage} 页`;

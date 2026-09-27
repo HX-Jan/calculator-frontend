@@ -530,3 +530,11 @@ dialog p {
     transition: none !important;
   }
 }
+
+/* Keep supporting labels available to screen readers without visual clutter. */
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; }
+.topbar { justify-content:flex-end; padding-bottom:0; }
+.workspace { margin-top:26px; }
+.connection.connected { display:none; }
+.result-row { justify-content:flex-end; }
+.steps { margin-top:24px; }

@@ -4,13 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#fafafa" />
-    <meta name="description" content="清晰计算，安心回溯。支持复合表达式与持久化历史的计算器。" />
+    <meta name="description" content="计算器" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>Clarity · 清晰计算</title>
+    <title>计算器</title>
   </head>
   <body>
     <header class="topbar">
-      <a class="brand" href="./" aria-label="Clarity 首页">Clarity <span>计算器</span></a>
       <div class="header-actions">
         <span id="connection" class="connection">正在连接服务</span
         ><button
@@ -29,29 +28,25 @@
         <section class="calculator card" aria-label="计算器">
           <div class="section-heading">
             <h1>标准计算</h1>
-            <span class="tag">支持括号与小数</span>
           </div>
           <form id="calculation-form" novalidate>
             <div class="display">
-              <label for="expression">输入表达式 <span>支持括号与正负数</span></label>
+              <label for="expression" class="sr-only">输入表达式</label>
               <input
                 id="expression"
                 name="expression"
                 type="text"
                 inputmode="text"
-                placeholder="例如 (12 + 8) × 3"
+                placeholder="输入算式"
                 autocomplete="off"
                 spellcheck="false"
                 maxlength="500"
-                aria-describedby="input-help"
               />
               <div class="result-row">
-                <span id="result-label">计算结果</span
+                <span id="result-label" class="sr-only">计算结果</span
                 ><output id="result" aria-live="polite">0</output>
               </div>
-              <div id="calculation-status" class="calculation-status" role="status">
-                输入算式，按 = 获取结果。
-              </div>
+              <div id="calculation-status" class="calculation-status" role="status"></div>
             </div>
             <div class="keypad" aria-label="数字与运算符键盘">
               <button type="button" data-action="clear" class="key utility clear">AC</button
@@ -78,14 +73,9 @@
               ><button type="button" data-value="+" class="key operator" aria-label="加">+</button>
             </div>
           </form>
-          <p class="keyboard-hint" id="input-help">
-            <kbd>Enter</kbd> 计算 <span>·</span> <kbd>Esc</kbd> 清空 <span>·</span> 支持键盘输入
-          </p>
           <details id="steps-panel" class="steps">
-            <summary>查看计算步骤 <span id="step-count">等待计算</span></summary>
-            <ol id="steps-list">
-              <li>完成计算后，可在这里查看运算顺序。</li>
-            </ol>
+            <summary>计算步骤 <span id="step-count"></span></summary>
+            <ol id="steps-list"></ol>
           </details>
         </section>
         <aside class="history card" aria-label="计算历史">
@@ -114,7 +104,6 @@
               ><button id="next" type="button" aria-label="下一页">→</button>
             </div>
           </div>
-          <p class="storage-note">记录自动保存 · 共享演示空间</p>
         </aside>
       </div>
     </main>
