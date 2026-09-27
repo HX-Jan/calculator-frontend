@@ -2,6 +2,8 @@
 
 A responsive calculator interface with keyboard input, light/dark themes, server-provided calculation steps, and searchable paginated history.
 
+![Clarity calculator local demonstration](docs/preview.png)
+
 配套后端：[calculator-backend](https://github.com/HX-Jan/calculator-backend)。本项目由 AI 辅助实现与测试；请理解交互与接口代码，并按课程要求声明辅助范围。
 
 ## Run locally
