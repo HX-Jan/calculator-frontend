@@ -767,3 +767,34 @@ dialog p {
 .result-actions #redo-edit {
   margin-right: auto;
 }
+.history-date {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  margin: 0;
+  padding: 14px 0 4px;
+}
+.record-bottom > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.record-bottom {
+  align-items: center;
+}
+.record-bottom .text-button {
+  font-size: 10px;
+  padding: 6px 4px;
+}
+.record-bottom time {
+  flex-shrink: 0;
+}
+@media (max-width: 680px) {
+  .record-bottom .text-button,
+  #clear-search,
+  #export-history,
+  #refresh,
+  .pagination button {
+    min-height: 44px;
+  }
+}

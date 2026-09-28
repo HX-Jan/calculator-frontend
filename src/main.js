@@ -2,6 +2,7 @@ import '@fontsource-variable/manrope';
 import '@fontsource-variable/jetbrains-mono';
 import './style.css';
 import { request } from './api.js';
+import { localDateKey, dateHeading, historyCsv } from './history-utils.js';
 import { ExpressionEditor } from './expression-editor.js';
 import { ResultView, reusable, scientific } from './result-view.js';
 
@@ -20,6 +21,7 @@ const state = {
   angle: 'deg',
 };
 const pageSize = 20;
+let historyPage = [];
 const resultView = new ResultView(result, byId('copy-result'), byId('result-format'));
 const editor = new ExpressionEditor(input, invalidateResult, setStatus);
 let lastSubmitted = null;
@@ -346,6 +348,7 @@ byId('calculation-form').addEventListener('submit', async (event) => {
     state.page = 1;
     state.query = '';
     byId('search').value = '';
+    byId('clear-search').hidden = true;
     await loadHistory();
   } catch (error) {
     editor.phase = 'error';
@@ -414,11 +417,8 @@ function renderRecord(record) {
   const time = document.createElement('time');
   time.dateTime = record.created_at;
   time.textContent = new Intl.DateTimeFormat('zh-CN', {
-    month: '2-digit',
-    day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
-    second: '2-digit',
     hour12: false,
   }).format(new Date(record.created_at));
   const actions = document.createElement('div');
@@ -444,6 +444,24 @@ function renderRecord(record) {
     byId('delete-expression').textContent = `${record.expression} = ${record.result}`;
     byId('delete-dialog').showModal();
   });
+  for (const [label, value] of [
+    ['复制算式', record.expression],
+    ['复制结果', record.result],
+  ]) {
+    const copy = document.createElement('button');
+    copy.type = 'button';
+    copy.className = 'text-button';
+    copy.textContent = label;
+    copy.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(value);
+        byId('history-status').textContent = '已复制';
+      } catch {
+        byId('history-status').textContent = '复制失败，请手动选择文字复制。';
+      }
+    });
+    actions.append(copy);
+  }
   actions.append(reuse, remove);
   bottom.append(time, actions);
   article.append(expression, answer, bottom);
@@ -453,6 +471,7 @@ function renderRecord(record) {
 async function loadHistory() {
   const version = ++state.historyVersion;
   byId('history-status').textContent = '正在读取历史…';
+  byId('export-history').disabled = true;
   byId('history-list').setAttribute('aria-busy', 'true');
   try {
     const params = new URLSearchParams({ q: state.query, page: state.page, page_size: pageSize });
@@ -465,7 +484,22 @@ async function loadHistory() {
     }
     state.total = data.total;
     byId('history-count').textContent = data.total;
-    byId('history-list').replaceChildren(...data.items.map(renderRecord));
+    historyPage = data.items;
+    const rows = [];
+    let previousDate = null;
+    for (const record of data.items) {
+      const key = localDateKey(record.created_at);
+      if (key !== previousDate) {
+        const heading = document.createElement('h3');
+        heading.className = 'history-date';
+        heading.textContent = dateHeading(record.created_at);
+        rows.push(heading);
+        previousDate = key;
+      }
+      rows.push(renderRecord(record));
+    }
+    byId('history-list').replaceChildren(...rows);
+    byId('export-history').disabled = !data.items.length;
     if (!data.items.length) {
       const empty = document.createElement('div');
       empty.className = 'empty-state';
@@ -495,6 +529,31 @@ async function loadHistory() {
   }
 }
 
+byId('export-history').addEventListener('click', () => {
+  if (!historyPage.length || byId('export-history').disabled) return;
+  const url = URL.createObjectURL(
+    new Blob([historyCsv(historyPage)], { type: 'text/csv;charset=utf-8' }),
+  );
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = `计算记录-${localDateKey(new Date())}-第${state.page}页.csv`;
+  document.body.append(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+byId('search').addEventListener('input', () => {
+  byId('clear-search').hidden = !byId('search').value;
+});
+function clearSearch() {
+  byId('search').value = '';
+  byId('clear-search').hidden = true;
+  state.query = '';
+  state.page = 1;
+  void loadHistory();
+  byId('search').focus();
+}
+byId('clear-search').addEventListener('click', clearSearch);
 byId('search-form').addEventListener('submit', (event) => {
   event.preventDefault();
   state.query = byId('search').value.trim();
@@ -503,9 +562,7 @@ byId('search-form').addEventListener('submit', (event) => {
 });
 byId('search').addEventListener('search', () => {
   if (!byId('search').value) {
-    state.query = '';
-    state.page = 1;
-    void loadHistory();
+    clearSearch();
   }
 });
 byId('refresh').addEventListener('click', () => {
