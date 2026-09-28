@@ -296,8 +296,8 @@ kbd {
   color: var(--muted);
   line-height: 2;
   overflow-wrap: anywhere;
-  font-family: 'JetBrains Mono Variable', monospace;
-  font-size: 11px;
+  font-family: Arial, 'Microsoft YaHei', sans-serif;
+  font-size: 13px;
 }
 .history {
   border-left: 1px solid var(--line);
@@ -809,11 +809,15 @@ dialog p {
 }
 .step-label {
   font-family: inherit;
+  font-size: 12px;
   color: var(--muted);
   margin-bottom: 4px;
 }
 .step-expression {
-  font-size: 13px;
+  font-size: 16px;
+  font-weight: 400;
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: normal;
   white-space: pre;
   overflow-x: auto;
   overflow-wrap: normal;

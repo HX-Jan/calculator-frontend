@@ -1,8 +1,10 @@
+const displayMath = (text) => text.replaceAll('*', '×').replaceAll('/', '÷');
+
 export function renderSteps(list, steps, result) {
   const rows = steps.map((step) => {
     const item = document.createElement('li');
     if (typeof step.before !== 'string' || typeof step.after !== 'string') {
-      item.textContent = `${step.operation} = ${step.result}`;
+      item.textContent = `${displayMath(step.operation)} = ${step.result}`;
       return item;
     }
     const label = document.createElement('div');
@@ -13,17 +15,17 @@ export function renderSteps(list, steps, result) {
     before.tabIndex = 0;
     before.setAttribute('aria-label', '运算前');
     const mark = document.createElement('mark');
-    mark.textContent = step.before.slice(step.highlight_start, step.highlight_end);
+    mark.textContent = displayMath(step.before.slice(step.highlight_start, step.highlight_end));
     before.append(
-      document.createTextNode(step.before.slice(0, step.highlight_start)),
+      document.createTextNode(displayMath(step.before.slice(0, step.highlight_start))),
       mark,
-      document.createTextNode(step.before.slice(step.highlight_end)),
+      document.createTextNode(displayMath(step.before.slice(step.highlight_end))),
     );
     const after = document.createElement('div');
     after.className = 'step-expression step-after';
     after.tabIndex = 0;
     after.setAttribute('aria-label', '运算后');
-    after.textContent = `→ ${step.after}`;
+    after.textContent = `→ ${displayMath(step.after)}`;
     item.append(label, before, after);
     return item;
   });
