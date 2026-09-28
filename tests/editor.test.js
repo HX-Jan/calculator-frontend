@@ -116,3 +116,50 @@ test('busy and overlength edits cannot change input', () => {
   assert.equal(input.value.length, 500);
   assert.equal(errors.length, 1);
 });
+
+test('undo and redo restore clear, function wrapping and selection', () => {
+  const { editor, input } = createEditor();
+  editor.set('2+3');
+  input.setSelectionRange(0, 3);
+  editor.wrap('sqrt(');
+  assert.equal(input.value, 'sqrt(2+3)');
+  editor.history();
+  assert.equal(input.value, '2+3');
+  assert.equal(input.selectionEnd, 3);
+  editor.history(true);
+  assert.equal(input.value, 'sqrt(2+3)');
+  editor.set('');
+  editor.history();
+  assert.equal(input.value, 'sqrt(2+3)');
+  editor.history(true);
+  assert.equal(input.value, '');
+});
+test('new edits discard redo; generated brackets survive undo', () => {
+  const { editor, input } = createEditor();
+  editor.wrap('sin(');
+  editor.insert('3');
+  editor.insert('0');
+  editor.history();
+  assert.equal(input.value, 'sin(3)');
+  editor.insert('9');
+  assert.equal(editor.redoStack.length, 0);
+  editor.insert(')');
+  assert.equal(input.value, 'sin(39)');
+});
+test('completed continuation is one undo step and busy history is inert', () => {
+  const { editor, input } = createEditor();
+  editor.set('12+8');
+  editor.answer = '20';
+  editor.phase = 'completed';
+  editor.insert('*');
+  editor.history();
+  assert.equal(input.value, '12+8');
+  editor.phase = 'requesting';
+  editor.history();
+  assert.equal(input.value, '12+8');
+});
+test('undo stack is bounded', () => {
+  const { editor } = createEditor();
+  for (let i = 0; i < 150; i++) editor.insert('1');
+  assert.equal(editor.undoStack.length, 100);
+});

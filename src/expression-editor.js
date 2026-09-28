@@ -42,9 +42,21 @@ export class ExpressionEditor {
     this.phase = 'editing';
     this.answer = null;
     this.closings = new Set();
+    this.undoStack = [];
+    this.redoStack = [];
+    this.lastSnapshot = this.snapshot();
+    this.onHistoryChange = () => {};
     input.addEventListener('pointerdown', () => this.manual());
-    input.addEventListener('paste', () => {
-      if (this.phase === 'completed') this.set('');
+    input.addEventListener('paste', (event) => {
+      if (this.phase === 'requesting') return;
+      const text = event.clipboardData?.getData('text/plain');
+      if (text !== undefined) {
+        event.preventDefault();
+        this.insert(text);
+      }
+    });
+    input.addEventListener('compositionstart', () => {
+      this.nativeSnapshot = this.snapshot();
     });
     input.addEventListener('keydown', (event) => {
       if (
@@ -53,13 +65,23 @@ export class ExpressionEditor {
       )
         this.manual();
     });
-    input.addEventListener('input', () => {
+    input.addEventListener('input', (event) => {
+      if (event.isComposing) return;
+      this.record(this.nativeSnapshot || this.lastSnapshot);
+      this.nativeSnapshot = null;
       this.closings.clear();
       this.phase = 'editing';
       this.changed();
+      this.lastSnapshot = this.snapshot();
     });
     input.addEventListener('beforeinput', (event) => {
       if (this.phase === 'requesting' || event.isComposing) return;
+      if (event.inputType === 'historyUndo' || event.inputType === 'historyRedo') {
+        event.preventDefault();
+        this.history(event.inputType === 'historyRedo');
+        return;
+      }
+      this.nativeSnapshot = this.snapshot();
       if (event.inputType === 'insertText' && event.data !== null) {
         event.preventDefault();
         this.insert(event.data);
@@ -69,6 +91,38 @@ export class ExpressionEditor {
       }
     });
   }
+  snapshot() {
+    return {
+      value: this.input.value,
+      start: this.input.selectionStart,
+      end: this.input.selectionEnd,
+      closings: [...this.closings],
+    };
+  }
+  record(snapshot) {
+    if (!snapshot) return;
+    this.undoStack.push(snapshot);
+    if (this.undoStack.length > 100) this.undoStack.shift();
+    this.redoStack = [];
+    this.onHistoryChange();
+  }
+  history(redo = false) {
+    if (this.phase === 'requesting') return;
+    const from = redo ? this.redoStack : this.undoStack;
+    const to = redo ? this.undoStack : this.redoStack;
+    if (!from.length) return;
+    to.push(this.snapshot());
+    const snapshot = from.pop();
+    this.input.value = snapshot.value;
+    this.input.setSelectionRange(snapshot.start, snapshot.end);
+    this.closings = new Set(snapshot.closings);
+    this.phase = 'editing';
+    this.nativeSnapshot = null;
+    this.changed();
+    this.lastSnapshot = this.snapshot();
+    this.onHistoryChange();
+    this.input.focus();
+  }
   manual() {
     if (this.phase === 'completed') this.phase = 'editing';
   }
@@ -77,6 +131,10 @@ export class ExpressionEditor {
       this.error('表达式不能超过 500 个字符。', true);
       return false;
     }
+    const previous = this.snapshot();
+    if (this.input.value.slice(0, start) + value + this.input.value.slice(end) !== this.input.value)
+      this.record(previous);
+    this.nativeSnapshot = null;
     const delta = value.length - (end - start);
     this.closings = new Set(
       [...this.closings]
@@ -89,10 +147,10 @@ export class ExpressionEditor {
     this.phase = 'editing';
     this.changed();
     this.input.focus();
+    this.lastSnapshot = this.snapshot();
     return true;
   }
   set(value) {
-    this.closings.clear();
     return this.replace(0, this.input.value.length, value);
   }
   skipClosing() {
@@ -108,7 +166,7 @@ export class ExpressionEditor {
     if (this.phase === 'requesting') return;
     if (this.phase === 'completed') {
       const seed = /^[+\-*/×÷^!%]/.test(value) ? `(${reusable(this.answer)})` : '';
-      this.set(seed);
+      return this.replace(0, this.input.value.length, seed + value);
     }
     if (value === ')' && this.skipClosing()) {
       this.input.focus();

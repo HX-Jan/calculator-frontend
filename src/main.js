@@ -23,6 +23,28 @@ const pageSize = 20;
 const resultView = new ResultView(result, byId('copy-result'), byId('result-format'));
 const editor = new ExpressionEditor(input, invalidateResult, setStatus);
 let lastSubmitted = null;
+function updateUndoControls() {
+  byId('undo-edit').disabled = state.busy || editor.undoStack.length === 0;
+  byId('redo-edit').disabled = state.busy || editor.redoStack.length === 0;
+}
+editor.onHistoryChange = updateUndoControls;
+byId('undo-edit').addEventListener('click', () => editor.history());
+byId('redo-edit').addEventListener('click', () => editor.history(true));
+document.addEventListener('keydown', (event) => {
+  if (
+    document.querySelector('dialog[open]') ||
+    (event.target.closest('input') && event.target !== input)
+  )
+    return;
+  if (
+    (event.ctrlKey || event.metaKey) &&
+    !event.altKey &&
+    ['z', 'y'].includes(event.key.toLowerCase())
+  ) {
+    event.preventDefault();
+    editor.history(event.key.toLowerCase() === 'y' || event.shiftKey);
+  }
+});
 byId('copy-result').addEventListener('click', async () => {
   if (resultView.raw === null) return;
   try {
@@ -228,6 +250,7 @@ function setStatus(message, error = false) {
 }
 
 function invalidateResult() {
+  input.removeAttribute('aria-invalid');
   resultView.set(null);
   byId('result-label').textContent = '等待计算';
   byId('steps-list').replaceChildren();
@@ -280,6 +303,7 @@ byId('calculation-form').addEventListener('submit', async (event) => {
   if (signature === lastSubmitted && resultView.raw !== null) return;
   const caret = [input.selectionStart, input.selectionEnd];
   state.busy = true;
+  updateUndoControls();
   editor.phase = 'requesting';
   invalidateResult();
   input.readOnly = true;
@@ -325,12 +349,25 @@ byId('calculation-form').addEventListener('submit', async (event) => {
     await loadHistory();
   } catch (error) {
     editor.phase = 'error';
-    input.setSelectionRange(...caret);
-    setStatus(error.message, true);
+    if (Number.isInteger(error.position) && Number.isInteger(error.endPosition)) {
+      const start = Math.max(0, Math.min(input.value.length, error.position));
+      const end = Math.max(start, Math.min(input.value.length, error.endPosition));
+      input.focus();
+      input.setSelectionRange(start, end);
+      input.setAttribute('aria-invalid', 'true');
+      setStatus(
+        `${error.message}（${start === input.value.length ? '算式末尾' : `第 ${start + 1} 位`}）`,
+        true,
+      );
+    } else {
+      input.setSelectionRange(...caret);
+      setStatus(error.message, true);
+    }
     void checkHealth();
   } finally {
     clearTimeout(slowMessage);
     state.busy = false;
+    updateUndoControls();
     input.readOnly = false;
     document
       .querySelectorAll(

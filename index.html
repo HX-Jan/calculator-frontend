@@ -49,12 +49,15 @@
                 autocomplete="off"
                 spellcheck="false"
                 maxlength="500"
+                aria-describedby="calculation-status"
               />
               <div class="result-row">
                 <span id="result-label" class="sr-only">计算结果</span
                 ><output id="result" aria-live="polite">0</output>
               </div>
               <div class="result-actions">
+                <button type="button" id="undo-edit" title="撤销 Ctrl+Z" disabled>撤销</button>
+                <button type="button" id="redo-edit" title="重做 Ctrl+Y" disabled>重做</button>
                 <button type="button" id="copy-result" disabled>复制</button>
                 <button type="button" id="result-format" aria-pressed="false" disabled>
                   科学计数

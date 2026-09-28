@@ -19,7 +19,10 @@ export async function request(path, options = {}) {
     throw new Error('服务返回了无法识别的响应，请稍后重试。');
   }
   if (!response.ok || !payload.success) {
-    throw new Error(payload.error?.message || '请求未完成，请稍后重试。');
+    const error = new Error(payload.error?.message || '请求未完成，请稍后重试。');
+    error.position = payload.error?.position;
+    error.endPosition = payload.error?.end_position;
+    throw error;
   }
   return payload.data;
 }

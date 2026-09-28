@@ -754,3 +754,16 @@ dialog p {
   overflow-y: hidden;
   width: 100%;
 }
+#expression[aria-invalid='true'] {
+  border-bottom-color: var(--error);
+}
+#expression[aria-invalid='true']::selection {
+  background: #f9caca;
+  color: #681c1c;
+}
+.result-actions #undo-edit {
+  margin-right: 0;
+}
+.result-actions #redo-edit {
+  margin-right: auto;
+}
