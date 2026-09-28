@@ -798,3 +798,39 @@ dialog p {
     min-height: 44px;
   }
 }
+
+.steps {
+  min-width: 0;
+}
+.steps li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  min-width: 0;
+}
+.step-label {
+  font-family: inherit;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.step-expression {
+  font-size: 13px;
+  white-space: pre;
+  overflow-x: auto;
+  overflow-wrap: normal;
+  color: var(--ink);
+  padding: 3px 0;
+}
+.step-expression mark {
+  background: var(--key);
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.step-after {
+  color: var(--muted);
+}
+.steps-note {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}

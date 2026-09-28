@@ -1,3 +1,4 @@
+import { renderSteps } from './steps-view.js';
 import '@fontsource-variable/manrope';
 import '@fontsource-variable/jetbrains-mono';
 import './style.css';
@@ -256,6 +257,7 @@ function invalidateResult() {
   resultView.set(null);
   byId('result-label').textContent = '等待计算';
   byId('steps-list').replaceChildren();
+  byId('steps-note').hidden = true;
   byId('step-count').textContent = '';
   setStatus('');
 }
@@ -332,17 +334,8 @@ byId('calculation-form').addEventListener('submit', async (event) => {
     lastAnswer = data.result;
     byId('result-label').textContent = '计算结果';
     byId('step-count').textContent = `${data.steps.length} 步`;
-    const steps = data.steps.map((step) => {
-      const item = document.createElement('li');
-      item.textContent = `${step.operation} = ${step.result}`;
-      return item;
-    });
-    if (!steps.length) {
-      const item = document.createElement('li');
-      item.textContent = `直接读取数值：${data.result}`;
-      steps.push(item);
-    }
-    byId('steps-list').replaceChildren(...steps);
+    renderSteps(byId('steps-list'), data.steps, data.result);
+    byId('steps-note').hidden = false;
     setStatus('');
     setConnection(true);
     state.page = 1;
@@ -351,6 +344,7 @@ byId('calculation-form').addEventListener('submit', async (event) => {
     byId('clear-search').hidden = true;
     await loadHistory();
   } catch (error) {
+    invalidateResult();
     editor.phase = 'error';
     if (Number.isInteger(error.position) && Number.isInteger(error.endPosition)) {
       const start = Math.max(0, Math.min(input.value.length, error.position));
