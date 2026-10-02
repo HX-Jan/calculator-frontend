@@ -7,10 +7,10 @@ Sources: [Google JavaScript Style Guide](https://google.github.io/styleguide/jsg
 - `camelCase` JavaScript identifiers; `kebab-case` CSS classes and HTML ids.
 - Separate the API client from DOM interaction and styles.
 - Use semantic buttons, forms, labels, keyboard focus indicators and status announcements.
-- Never evaluate arithmetic in the browser. Send only the expression to the backend.
+- Never evaluate arithmetic in the browser. Send expressions, angle mode or formula parameters to the backend, never a client-computed result.
 - Treat results as strings. Render user/server text using `textContent` or form `.value`.
 - Handle loading, errors, empty data and stale requests explicitly. Do not silently treat failed writes as success.
-- Store only theme preference in localStorage, not authoritative calculation history.
+- Store only interface preferences (theme, mode and angle unit) in localStorage, not authoritative history or shared formulas.
 - Keep breakpoints and color tokens centralized in CSS; honor reduced-motion preference.
 - Before commit: `npm run check` and `npm run build`; verify changed user flows in a real browser.
 - Exclude `.env`, local databases, `node_modules`, build artifacts and secrets from Git.

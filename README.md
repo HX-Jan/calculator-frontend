@@ -22,7 +22,7 @@ Open http://127.0.0.1:5173. On macOS/Linux use `cp .env.example .env`. For repea
 
 `VITE_API_BASE_URL` defaults to `http://127.0.0.1:8000`. Set it in `.env` before starting or building. The backend must allow the frontend origin through `ALLOWED_ORIGINS`.
 
-The frontend does not initialize a database. Start the backend; it creates its database table. Calculation results and history are retrieved through HTTP. Only theme preference is stored in localStorage.
+The frontend does not initialize a database. Start the backend; it creates its database table. Calculation results and history are retrieved through HTTP. Theme, calculator mode and angle-unit preferences are stored in localStorage; history and shared formulas come from the backend database.
 
 ## Use
 
@@ -61,7 +61,7 @@ Do not put database passwords in `VITE_*` variables: they are public client-side
 
 顶部普通／科学按钮切换键盘并记住选择，切换不清空输入或结果。科学模式提供平方、乘方、开方、倒数、阶乘、三角函数、对数与 π/e；DEG 表示角度、RAD 表示弧度，默认 DEG。改变角度单位会清除旧结果，需重新计算。
 
-函数键优先包裹选区，否则包裹光标前的完整操作数；空位置自动插入成对括号。例如 `sin(30)`（DEG）为 `0.5`，`sin(pi/2)`（RAD）为 `1`。倒数键插入 `1/(`，平方插入 `^2`。乘号必须明确输入。
+函数键优先包裹选区，否则包裹光标前的完整操作数；空位置自动插入成对括号。例如 `sin(30)`（DEG）为 `0.5`，`sin(pi/2)`（RAD）为 `1`。倒数键包裹操作数为 `1/(...)`，平方对完整操作数添加 `^2`。乘号必须明确输入。
 
 科学表达式复用时自动展开科学键盘，恢复记录的角度单位。全部运算在后端完成。三角函数为约 15 位有效数字的近似计算；定义域错误不会保存记录。先升级后端，再发布此前端。
 
@@ -117,3 +117,10 @@ Ans 插入上次成功结果；MS 存储当前结果，MR 读取，MC 清除。A
 参数错误显示在字段下，公式整体错误显示在窗口底部，失败保留输入。共享公式有更新时间检查；若被他人修改，取消窗口、刷新列表并重新打开。删除公式不删除已有计算历史。请求期间禁止重复提交及关闭窗口，网络恢复后可重试。
 
 界面逻辑集中在 `src/formula-library.js`，前端不识别变量或计算参数；后端先发布并初始化新表，再更新前端。公式库依赖新版后端，普通计算接口保持兼容。
+
+
+## Current verification / 当前交付状态
+
+功能基线核对于 2026-10-02：后端 CI 220 项通过（含 PostgreSQL），前端 12 项测试、语法及构建通过。[验证摘要](docs/VERIFICATION.md)。支持科学运算、逐步化简与共享公式库。公开 GitHub 仓库不代表已部署公网；公网入口尚待实际部署验收。
+
+[项目结构与功能图 / Project overview](docs/OVERVIEW.md)
