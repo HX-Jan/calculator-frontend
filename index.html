@@ -105,37 +105,63 @@
             <p id="steps-note" class="steps-note" hidden>按实际求值顺序展示；数值可能经过舍入。</p>
           </details>
         </section>
-        <aside class="history card" aria-label="计算历史">
-          <div class="section-heading">
-            <h2>
-              计算历史
-              <span id="history-count" class="count">0</span>
-            </h2>
-            <div>
-              <button type="button" id="export-history" class="text-button" disabled>
-                导出本页</button
-              ><button type="button" id="refresh" class="text-button">刷新</button>
+        <aside class="history card" aria-label="历史与公式">
+          <div class="library-tabs" role="group" aria-label="记录与公式">
+            <button id="history-tab" type="button" aria-pressed="true">历史</button>
+            <button id="formulas-tab" type="button" aria-pressed="false">公式</button>
+          </div>
+          <div id="history-pane" class="library-pane">
+            <div class="section-heading">
+              <h2>
+                计算历史
+                <span id="history-count" class="count">0</span>
+              </h2>
+              <div>
+                <button type="button" id="export-history" class="text-button" disabled>
+                  导出本页</button
+                ><button type="button" id="refresh" class="text-button">刷新</button>
+              </div>
+            </div>
+            <form id="search-form" class="search">
+              <input
+                id="search"
+                type="search"
+                placeholder="搜索表达式或结果"
+                aria-label="搜索表达式或结果"
+                maxlength="500"
+              /><button type="button" id="clear-search" aria-label="清除搜索" hidden>清除</button
+              ><button type="submit">搜索</button>
+            </form>
+            <div id="history-status" class="history-status" role="status"></div>
+            <div id="history-list" class="history-list"></div>
+            <div class="pagination">
+              <span id="page-info">第 1 / 1 页</span>
+              <div>
+                <button id="previous" type="button" aria-label="上一页">←</button
+                ><button id="next" type="button" aria-label="下一页">→</button>
+              </div>
             </div>
           </div>
-          <form id="search-form" class="search">
-            <input
-              id="search"
-              type="search"
-              placeholder="搜索表达式或结果"
-              aria-label="搜索表达式或结果"
-              maxlength="500"
-            /><button type="button" id="clear-search" aria-label="清除搜索" hidden>清除</button
-            ><button type="submit">搜索</button>
-          </form>
-          <div id="history-status" class="history-status" role="status"></div>
-          <div id="history-list" class="history-list"></div>
-          <div class="pagination">
-            <span id="page-info">第 1 / 1 页</span>
-            <div>
-              <button id="previous" type="button" aria-label="上一页">←</button
-              ><button id="next" type="button" aria-label="下一页">→</button>
+          <section id="formulas-pane" class="library-pane" aria-label="共享公式库" hidden>
+            <div class="section-heading">
+              <h2>公式库</h2>
+              <div>
+                <button id="formula-new" type="button" class="text-button">新增</button
+                ><button id="formula-refresh" type="button" class="text-button">刷新</button>
+              </div>
             </div>
-          </div>
+            <form id="formula-search-form" class="search">
+              <input
+                id="formula-search"
+                type="search"
+                maxlength="40"
+                placeholder="搜索公式名称"
+                aria-label="搜索公式名称"
+              /><button type="submit">搜索</button>
+            </form>
+            <p id="formula-status" class="history-status" role="status"></p>
+            <div id="formula-list" class="history-list"></div>
+          </section>
         </aside>
       </div>
     </main>
@@ -161,6 +187,72 @@
         <button id="cancel-delete" type="button">取消</button
         ><button id="confirm-delete" type="button" class="danger">删除记录</button>
       </div>
+    </dialog>
+    <dialog id="formula-editor" class="formula-dialog" aria-labelledby="formula-editor-title">
+      <form id="formula-editor-form">
+        <h2 id="formula-editor-title">新增公式</h2>
+        <p class="shared-label">共享公式</p>
+        <label for="formula-name">名称</label
+        ><input id="formula-name" maxlength="40" required autocomplete="off" />
+        <label for="formula-expression">公式</label
+        ><input
+          id="formula-expression"
+          maxlength="500"
+          required
+          autocomplete="off"
+          placeholder="例如 pi*r^2"
+          aria-describedby="formula-help"
+        />
+        <details id="formula-help">
+          <summary>输入规则</summary>
+          <p>
+            参数使用单个小写字母，最多 8 个；e、pi 和函数名保留。乘号用 *。参数值可填写 1/3、sqrt(2)
+            等算式。
+          </p>
+        </details>
+        <button id="formula-identify" type="button" class="text-button">识别参数</button>
+        <div id="formula-labels"></div>
+        <label for="formula-default-angle">默认角度单位</label
+        ><select id="formula-default-angle">
+          <option value="deg">DEG</option>
+          <option value="rad">RAD</option>
+        </select>
+        <p id="formula-editor-error" class="formula-error" role="status"></p>
+        <div class="dialog-actions">
+          <button type="button" data-close-formula="formula-editor">取消</button
+          ><button type="submit">保存</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="formula-use" class="formula-dialog" aria-labelledby="formula-use-title">
+      <form id="formula-use-form">
+        <h2 id="formula-use-title"></h2>
+        <p class="shared-label">共享公式</p>
+        <p id="formula-use-expression" class="formula-expression"></p>
+        <div id="formula-inputs"></div>
+        <label for="formula-use-angle">角度单位</label
+        ><select id="formula-use-angle">
+          <option value="deg">DEG</option>
+          <option value="rad">RAD</option>
+        </select>
+        <p id="formula-use-error" class="formula-error" role="status"></p>
+        <div class="dialog-actions">
+          <button type="button" data-close-formula="formula-use">取消</button
+          ><button type="submit">计算</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="formula-delete" class="formula-dialog" aria-labelledby="formula-delete-title">
+      <form id="formula-delete-form">
+        <h2 id="formula-delete-title">删除共享公式？</h2>
+        <p id="formula-delete-name"></p>
+        <p>所有访问者将无法再使用它，已有计算历史会保留。</p>
+        <p id="formula-delete-error" class="formula-error" role="status"></p>
+        <div class="dialog-actions">
+          <button type="button" data-close-formula="formula-delete">取消</button
+          ><button type="submit" class="danger">删除</button>
+        </div>
+      </form>
     </dialog>
     <script type="module" src="/src/main.js"></script>
   </body>

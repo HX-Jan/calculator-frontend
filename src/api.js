@@ -20,6 +20,8 @@ export async function request(path, options = {}) {
   }
   if (!response.ok || !payload.success) {
     const error = new Error(payload.error?.message || '请求未完成，请稍后重试。');
+    error.parameter = payload.error?.parameter;
+    error.code = payload.error?.code;
     error.position = payload.error?.position;
     error.endPosition = payload.error?.end_position;
     throw error;

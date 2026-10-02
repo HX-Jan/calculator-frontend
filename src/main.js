@@ -1,3 +1,4 @@
+import { initFormulaLibrary } from './formula-library.js';
 import { renderSteps } from './steps-view.js';
 import '@fontsource-variable/manrope';
 import '@fontsource-variable/jetbrains-mono';
@@ -617,3 +618,29 @@ byId('theme').addEventListener('click', () => {
 });
 void checkHealth();
 void loadHistory();
+
+initFormulaLibrary({
+  isBusy: () => state.busy,
+  onResult: async (data, angle) => {
+    setMode('scientific');
+    setAngle(angle);
+    setExpression(data.expression);
+    resultView.set(data.result);
+    editor.answer = data.result;
+    editor.phase = 'completed';
+    lastAnswer = data.result;
+    lastSubmitted = JSON.stringify([input.value, state.angle]);
+    byId('result-label').textContent = '计算结果';
+    byId('step-count').textContent = `${data.steps.length} 步`;
+    renderSteps(byId('steps-list'), data.steps, data.result);
+    byId('steps-note').hidden = false;
+    setStatus('');
+    setConnection(true);
+    state.page = 1;
+    state.query = '';
+    byId('search').value = '';
+    byId('clear-search').hidden = true;
+    input.focus();
+    await loadHistory();
+  },
+});
