@@ -112,7 +112,7 @@ Stop the development server before previewing on the same port. Backend tests li
 
 Workers Static Assets serves the frontend alongside the same-origin Python API; D1 stores data. Build and deploy from the backend's `cloudflare` directory. `VITE_*` configuration is public and must not contain passwords or credentials. GitHub Actions runs checks, without automatic deployment.
 
-As of 2026-10-04, backend CI passed 234 tests with 98% coverage; frontend passed 18 tests, syntax checks and build. DNS records, deployment and D1 bindings are confirmed. Connections reset on the current network; end-to-end access on the current domain and direct access from mainland China have not been reverified.
+As of 2026-10-04, backend CI passed 234 tests with 98% coverage; frontend passed 18 tests, syntax checks and build. The interface update is deployed to the existing calculator Worker with unchanged D1 bindings. Public accessibility is outside the scope of this review.
 
 The desktop layout targets 1366×768. Main mobile controls are at least 44px, with history below the calculator. Fonts are bundled locally; licenses are in `public/licenses`.
 
