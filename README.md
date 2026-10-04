@@ -8,7 +8,13 @@ The interface uses a restrained monochrome palette, flat keys and a compact two-
 
 ![Calculator local demonstration](docs/preview.png)
 
-配套后端：[calculator-backend](https://github.com/HX-Jan/calculator-backend)。本项目由 AI 辅助实现与测试；请理解交互与接口代码，并按课程要求声明辅助范围。
+配套后端：[calculator-backend](https://github.com/HX-Jan/calculator-backend)。
+
+## 项目负责人及工具使用
+
+项目负责人：洪翔（HX-Jan）。项目的需求范围、界面风格和功能迭代方向由本人确定，包括普通/科学模式、输入编辑、计算步骤和公式库的取舍。界面调整根据本人提出的使用反馈进行，部署方案和账号授权也由本人选择、确认。
+
+开发过程中使用 AI 辅助需求细化、代码实现与修改、测试执行、部署操作和文档整理。需求决策与工具执行分别说明，不将辅助工具执行的工作描述为本人独立编写或手动完成。
 
 ## Run locally
 
@@ -38,7 +44,16 @@ The frontend does not initialize a database. Start the backend; it creates its d
 
 ## Architecture
 
-`src/api.js` manages JSON HTTP requests and errors. `src/main.js` manages input, loading states, safe DOM rendering and history interactions. `src/style.css` implements responsive themes. `index.html` uses semantic form controls and accessible names.
+| Module | Responsibility |
+|---|---|
+| `src/main.js` | Calculator state, requests, keyboard and history interactions |
+| `src/api.js` | JSON HTTP requests and error responses |
+| `src/expression-editor.js` | Cursor/selection edits, automatic brackets, undo and redo |
+| `src/result-view.js` | Exact result strings and scientific notation display |
+| `src/steps-view.js` | Server-generated steps and source-range highlighting |
+| `src/history-utils.js` | Date grouping and current-page CSV export |
+| `src/formula-library.js` | Formula list, editing and parameter dialogs |
+| `src/style.css` / `index.html` | Responsive themes and accessible form controls |
 
 The frontend never evaluates expressions or computes final results. Results remain strings, avoiding JavaScript numeric rounding. Server-provided text is inserted with `textContent`, not HTML injection. Pending calculation requests disable conflicting input. Failed history refreshes are explicitly marked as potentially stale.
 
@@ -122,6 +137,8 @@ Ans 插入上次成功结果；MS 存储当前结果，MR 读取，MC 清除。A
 
 ## Current verification / 当前交付状态
 
-功能基线核对于 2026-10-02：后端 CI 220 项通过（含 PostgreSQL），前端 12 项测试、语法及构建通过。[验证摘要](docs/VERIFICATION.md)。支持科学运算、逐步化简与共享公式库。公开 GitHub 仓库不代表已部署公网；公网入口尚待实际部署验收。
+截至 2026-10-04，后端 GitHub CI 232 项测试通过（包含 PostgreSQL），覆盖率 98%；前端 12 项测试、语法检查和构建通过。科学运算、逐步化简、错误定位、撤销重做及共享公式库均已有实现，详见[验证摘要](docs/VERIFICATION.md)。
+
+Cloudflare 部署已完成，当前入口为 https://calculator.assignment1.workers.dev 。域名解析及数据库绑定已确认；当前网络访问仍出现连接重置，新地址的端到端操作和国内直连未完成复验。GitHub Actions 检查代码，不自动部署网站。
 
 [项目结构与功能图 / Project overview](docs/OVERVIEW.md)
