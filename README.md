@@ -1,142 +1,114 @@
-# Calculator Frontend
+# 计算器前端
 
-在线体验：[Cloudflare 计算器](https://calculator.assignment1.workers.dev)。前端静态资源、Python API 和 D1 数据库已部署到 Cloudflare，更新方法见[后端部署说明](https://github.com/HX-Jan/calculator-backend/blob/main/cloudflare/README.md)。
+**简体中文** | [English](README.en.md)
 
-A responsive calculator interface with keyboard input, light/dark themes, server-provided calculation steps, and searchable paginated history.
+支持普通与科学计算的响应式网页计算器，采用黑白灰界面，提供键盘输入、浅色/深色主题、逐步化简、历史记录和共享公式库。所有计算由后端执行。
 
-The interface uses a restrained monochrome palette, flat keys and a compact two-column layout. Light mode is the default; dark mode remains available. Manrope and JetBrains Mono are bundled locally. See [design decisions](DESIGN.md); font licenses are included in `public/licenses`.
+[在线体验](https://calculator.assignment1.workers.dev) · [后端仓库](https://github.com/HX-Jan/calculator-backend) · [部署说明](https://github.com/HX-Jan/calculator-backend/blob/main/cloudflare/README.md)
 
-![Calculator local demonstration](docs/preview.png)
-
-配套后端：[calculator-backend](https://github.com/HX-Jan/calculator-backend)。
+![计算器本地运行界面](docs/preview.png)
 
 ## 项目信息
 
-负责人：[洪翔 / HX-Jan](https://github.com/HX-Jan)。负责需求规划、界面方案和功能迭代方向。开发过程见[开发说明](docs/DEVELOPMENT.md)。
+负责人：[洪翔 / HX-Jan](https://github.com/HX-Jan)，负责需求规划、界面方案和功能迭代方向。[开发说明](docs/DEVELOPMENT.md)
 
-## Run locally
+## 本地运行
 
-Requires Node.js 22.12+ (tested with Node 24) and the backend on port 8000.
+需要 Node.js 22.12 或更高版本（已使用 Node 24 验证），后端默认运行在 8000 端口。
 
 ```powershell
-npm install
+npm ci
 Copy-Item .env.example .env
 npm run dev
 ```
 
-Open http://127.0.0.1:5173. On macOS/Linux use `cp .env.example .env`. For repeatable installation after cloning, use `npm ci`.
+打开 http://127.0.0.1:5173 。macOS/Linux 使用 `cp .env.example .env`。
 
-`VITE_API_BASE_URL` defaults to `http://127.0.0.1:8000` in development and the current website origin in production. Set it in `.env` before starting or building for a separate API host. A separate backend must allow the frontend origin through `ALLOWED_ORIGINS`.
+`VITE_API_BASE_URL` 在开发环境默认为 `http://127.0.0.1:8000`，生产环境默认为网站同源地址。独立部署 API 时，在启动或构建前修改 `.env`，并在后端的 `ALLOWED_ORIGINS` 中允许前端来源。
 
-The frontend does not initialize a database. Start the backend; it creates its database table. Calculation results and history are retrieved through HTTP. Theme, calculator mode and angle-unit preferences are stored in localStorage; history and shared formulas come from the backend database.
+前端不创建数据库。历史和公式来自后端数据库；主题、计算模式和角度偏好保存在 localStorage。
 
-## Use
+## 计算功能
 
-- Type an expression or use the keypad. Enter computes; Escape clears the input.
-- Supports `+ - * /`, UI `× ÷`, decimal numbers, parentheses and unary signs.
-- Expand the steps below the keypad to see backend evaluation order.
-- Search expression/result history; use arrows to move through 20-row pages.
-- Reuse copies an expression into the input without computing it. Press Enter to compute again.
-- Delete asks for confirmation and then sends the record id to the backend.
-- The history is shared demo data. This version has no accounts or private histories.
+- 普通/科学模式切换会记住选择，保留输入和结果；DEG/RAD 切换会清除旧结果，需要重新计算。
+- 支持四则、小数、括号、一元正负号、平方、立方、乘方、倒数、阶乘、百分号、π 和 e。乘号必须明确输入。
+- 科学键盘通过 2nd 切换两页：三角及反三角函数、双曲及反双曲函数、根、对数、abs、exp、floor/ceil 等。
+- 双参数窗口支持 `root(x,n)`、`logbase(x,b)`、`mod(x,y)`、`perm(n,r)`、`comb(n,r)`；确认生成算式，按等号计算，取消保持原输入。
+- `sin(30)` 在 DEG 下为 `0.5`，`sin(pi/2)` 在 RAD 下为 `1`。反三角函数遵循角度单位，双曲函数不使用角度单位。
+- EXP 输入科学计数法，如 `1.2E-3`，也接受小写 e。常量 e 单独使用，需显式乘法。
+- 百分号固定除以 100：`200+10% = 200.1`，`200*10% = 20`。
+- 阶乘接受 0–69 的整数；排列组合接受 `0 ≤ r ≤ n ≤ 1000` 的整数。负数只支持整数奇次根，结果仍受后端范围限制。
 
-## Architecture
+仅支持实数，不含矩阵、复数、方程求解或统计模块。三角、反三角、双曲及反双曲函数采用约 15 位有效数字的近似计算；根和对数也可能舍入。非法定义域不会保存历史。
 
-| Module | Responsibility |
+## 输入与结果
+
+输入算式或点击按键，Enter 计算，Escape 清空输入。成功后输入数字、小数点或常量开始新算式；输入运算符从当前结果继续计算。点击输入框或移动光标后可编辑原算式。未修改时连续按等号不重复提交或保存。
+
+函数键优先包裹选区，否则包裹光标前完整操作数；没有操作数时插入成对括号。结果状态下，平方、立方、倒数和正负号直接提交后端计算。自动补全的右括号可跳过，空括号对可一起退格删除；普通文本输入不强行补括号。
+
+Ans 插入上次成功结果；MS 存储当前结果、MR 读取、MC 清除。Ans 和存储只保留在当前页面会话，AC 不清除存储。复制、Ans、存储及连续计算始终使用原始结果字符串。科学计数显示不使用 JavaScript 浮点数；长数复用转换为等值科学计数输入。
+
+请求期间禁用冲突操作。网络或计算失败保留输入，并清除旧结果和步骤；历史刷新失败会标记数据可能过期。
+
+## 错误定位与撤销
+
+表达式错误选中相关字符；缺少内容时定位到插入位置。修改或撤销会清除旧标记，重新计算由后端验证。
+
+支持最近 100 步撤销/重做，包括清空、粘贴、函数包裹及选区替换。快捷键为 Ctrl+Z、Ctrl+Y 或 Ctrl+Shift+Z，macOS 使用 Command。新编辑清除重做分支，刷新页面清空编辑栈。撤销恢复表达式、光标和自动括号，不删除数据库历史或改变存储值，也不自动计算。
+
+## 步骤与历史
+
+步骤默认折叠，展开后显示编号、运算名称、算式前后变化及当前部分高亮；三角及反三角步骤显示 DEG/RAD。步骤可能包含舍入值，最后一步与结果一致。长算式在区域内横向滚动，可键盘聚焦。旧后端缺少轨迹字段时回退到原步骤列表。
+
+历史按本地日期分组，支持搜索、每页 20 条分页、复制和确认删除。复用只填入算式，需按等号重新计算；科学表达式复用恢复科学模式与原角度单位。清除搜索返回第一页。
+
+“导出本页”下载当前已加载的最多 20 条记录，包含 ID、表达式、结果、角度单位及 UTC 时间。CSV 使用 UTF-8 BOM；表达式和结果带单引号文本前缀，避免表格软件执行公式或舍入长数字。复制按钮提供原始文本。空结果、加载中或读取失败时不能导出，导出不修改数据库。
+
+历史与自定义公式由所有访问者共享，没有账号或私有数据。
+
+## 共享公式库
+
+历史/公式切换默认显示历史。内置圆面积、圆周长、勾股定理和二次函数求值；内置项只读，可另存为自定义项。自定义项支持新增、名称搜索、编辑和确认删除。
+
+公式名称和参数标签最多 40 字，表达式最多 500 字符。参数为最多 8 个单独小写字母，排除 e，pi 和函数名保留，不支持隐式乘法。点击“识别参数”设置中文名称；保存也会识别参数，只校验语法，因此 `1/x` 可以保存。
+
+使用时参数可填 `-3`、`1/3`、`sqrt(2)` 等，不能引用其他参数。本次 DEG/RAD 对所有参数及公式生效。后端将每个参数表达式加括号代入，总长度仍限制 500 字符；成功后主界面显示完整算式、结果和步骤，历史保存代入式。
+
+参数错误显示在对应字段，整体错误显示在窗口底部，失败保留输入。自定义公式使用更新时间检查冲突，被他人修改后需刷新并重新打开。删除公式不影响历史。请求期间禁用重复提交和关闭窗口，网络恢复后可重试。公式库需要支持公式接口的新版后端。
+
+## 项目结构
+
+| 文件 | 职责 |
 |---|---|
-| `src/main.js` | Calculator state, requests, keyboard and history interactions |
-| `src/api.js` | JSON HTTP requests and error responses |
-| `src/expression-editor.js` | Cursor/selection edits, automatic brackets, undo and redo |
-| `src/result-view.js` | Exact result strings and scientific notation display |
-| `src/steps-view.js` | Server-generated steps and source-range highlighting |
-| `src/history-utils.js` | Date grouping and current-page CSV export |
-| `src/formula-library.js` | Formula list, editing and parameter dialogs |
-| `src/style.css` / `index.html` | Responsive themes and accessible form controls |
+| `src/main.js` | 状态、请求、键盘与历史交互 |
+| `src/api.js` | JSON 请求及错误处理 |
+| `src/expression-editor.js` | 光标、选区、自动括号、撤销/重做 |
+| `src/result-view.js` | 原始结果字符串与科学计数显示 |
+| `src/steps-view.js` | 后端步骤及 UTF-16 范围高亮 |
+| `src/history-utils.js` | 日期分组与当前页 CSV 导出 |
+| `src/formula-library.js` | 公式列表、编辑与代入窗口 |
+| `src/style.css` / `index.html` | 响应式主题与无障碍控件 |
 
-The frontend never evaluates expressions or computes final results. Results remain strings, avoiding JavaScript numeric rounding. Server-provided text is inserted with `textContent`, not HTML injection. Pending calculation requests disable conflicting input. Failed history refreshes are explicitly marked as potentially stale.
+服务器文本通过 `textContent` 渲染。前端不识别公式变量，不计算参数或最终结果。
 
-## Build and verification
+## 检查与构建
 
 ```powershell
 npm run check
+npm test
 npm run build
 npm run preview -- --port 5173
 ```
 
-Stop the development server before previewing on the same port. Backend tests live in the backend repository. Manual browser acceptance: verify `0.1+0.2`, `(1+2)*3`, `3*-2`, invalid input, zero division, refresh persistence, record deletion, search, pagination, theme persistence and mobile layout. Stop the backend and confirm the UI cannot create a new result.
+同端口预览前需停止开发服务。后端测试在配套仓库。浏览器检查覆盖 `0.1+0.2`、`(1+2)*3`、`3*-2`、非法输入、除零、持久化、历史操作、主题和手机布局；后端断开时不能生成新结果。
 
-## Cloudflare deployment
+## 部署与验证
 
-The live frontend is served by Workers Static Assets alongside the Python API. Production requests use the same origin, so a separate API hostname is unnecessary. Build and deploy from the backend repository's `cloudflare` directory; see [deployment instructions](https://github.com/HX-Jan/calculator-backend/blob/main/cloudflare/README.md).
+前端由 Workers Static Assets 提供，与 Python API 同源，D1 保存数据。从后端仓库的 `cloudflare` 目录构建部署。`VITE_*` 配置公开可见，不能存放密码或登录凭据。GitHub Actions 运行检查，不自动部署。
 
-Do not put database passwords or login tokens in `VITE_*` variables, because frontend configuration is public. GitHub Actions checks tests and builds; it does not deploy the site automatically.
+截至 2026-10-04，后端 CI 232 项通过，覆盖率 98%；前端 12 项测试、语法检查及构建通过。当前域名有 DNS 记录，部署与 D1 绑定已确认；当前网络连接重置，新地址端到端访问及国内直连仍未复验。
 
-## 普通与科学模式
+桌面布局以 1366×768 为目标，手机主要按钮至少 44px，历史位于计算器下方。使用本地打包字体，许可证见 `public/licenses`。
 
-顶部普通／科学按钮切换键盘并记住选择，切换不清空输入或结果。科学模式提供平方、乘方、开方、倒数、阶乘、三角函数、对数与 π/e；DEG 表示角度、RAD 表示弧度，默认 DEG。改变角度单位会清除旧结果，需重新计算。
-
-函数键优先包裹选区，否则包裹光标前的完整操作数；空位置自动插入成对括号。例如 `sin(30)`（DEG）为 `0.5`，`sin(pi/2)`（RAD）为 `1`。倒数键包裹操作数为 `1/(...)`，平方对完整操作数添加 `^2`。乘号必须明确输入。
-
-科学表达式复用时自动展开科学键盘，恢复记录的角度单位。全部运算在后端完成。三角函数为约 15 位有效数字的近似计算；定义域错误不会保存记录。先升级后端，再发布此前端。
-
-
-## 扩展科学功能
-
-科学键盘使用 2nd 切换两页。新增 asin/acos/atan、sinh/cosh/tanh 及其反函数、abs、exp、cbrt、floor/ceil。反三角函数输出遵循 DEG/RAD；双曲函数及其反函数不使用角度单位。
-
-双参数函数使用逗号分隔：`root(x,n)`（n 次方根）、`logbase(x,b)`（底 b）、`mod(x,y)`（余数符号跟随 x）、`perm(n,r)`、`comb(n,r)`。排列组合仅接受 `0 ≤ r ≤ n ≤ 1000` 的整数，结果仍受范围限制。负数仅支持整数奇次根。
-
-EXP 输入 E，例如 `1.2E-3`；也接受小写 e。常量 e 单独使用，乘法需明确输入。百分号固定表示除以 100，`200+10%` 为 `200.1`，`200*10%` 为 `20`。
-
-Ans 插入上次成功结果；MS 存储当前结果，MR 读取，MC 清除。Ans 和存储仅在当前页面会话保留，AC 不清除存储。所有数值运算仍通过后端。函数键优先包裹选区；双参数函数打开输入窗口，确认后生成完整表达式，按等号计算。
-
-三角、反三角、双曲及反双曲函数为约 15 位有效数字的浮点近似；根和对数也可能产生舍入。仅支持实数。本次不含矩阵、复数、方程和统计模块。
-
-
-## 连续计算与编辑体验
-
-计算完成后，数字、小数点和常量开始新表达式；运算符接着当前结果计算。点击输入框或用方向键移动光标后，可继续编辑原表达式。未修改表达式时重复等号不重复保存历史。
-
-函数键包裹选区或光标前完整操作数；没有操作数时自动配对括号。平方、立方、倒数、正负号在结果状态下直接提交后端运算。任意根、任意底对数、排列组合和取余通过双参数窗口输入，确认后按等号。取消不改变算式。
-
-结果可复制原始十进制字符串，也可切换科学计数显示；显示切换不使用浮点数，不改变计算值。Ans、存储和连续计算始终复用原始值，长数以等值科学计数输入。网络或计算错误保留输入；所有实际计算仍调用后端。科学键盘适配 1366×768 桌面，手机端保留较大触控目标。
-
-## 错误位置与编辑历史
-
-算式错误会选中相关字符；缺少内容时将光标定位到插入位置。修改或撤销后清除旧错误标记，再次按等号由后端验证。
-
-撤销／重做按钮支持最近 100 步输入修改，包括清空、函数包裹、粘贴和选区替换；快捷键为 Ctrl+Z、Ctrl+Y 或 Ctrl+Shift+Z（macOS 可用 Command）。新修改会清除重做分支，刷新页面会清空编辑栈。撤销仅恢复算式、光标和自动括号，不撤销数据库记录或存储数值，不自动重新计算。
-
-## 历史记录操作
-
-历史按本地日期分组，每条记录支持复制原始算式或完整结果。清除搜索按钮恢复全部记录并回到第一页。
-
-“导出本页”下载当前已加载页（最多 20 条）的 CSV，搜索和分页结果均可导出；空结果、加载中或读取失败时不可导出。包含 ID、表达式、结果、角度单位和 UTC 时间。CSV 为 UTF-8 BOM 编码，表达式及结果带文本前缀单引号，以防表格软件执行公式或舍入长数字；需要原始无前缀文本时使用复制按钮。导出不改变数据库。
-
-
-## 逐步化简展示
-
-计算步骤默认折叠。展开后显示编号、运算名称和完整算式前后变化，浅灰背景及下划线标记正在运算的部分；三角及反三角步骤标记 DEG/RAD。括号整理可能单列一步，最终一行与主结果一致。步骤区注明数值可能经过舍入。
-
-长算式可在单行内横向滚动，也可通过键盘聚焦。修改输入、切换角度或请求失败会清除旧步骤。前端 `steps-view.js` 只负责安全文本渲染和 UTF-16 范围高亮，不求值；后端缺少轨迹字段时回退到原步骤列表。历史复用仍需按等号生成新步骤。
-
-## 共享公式库
-
-新增“历史／公式”切换，默认历史。公式库提供圆面积、圆周长、勾股定理和二次函数求值；内置项可另存为自定义公式。自定义项可新增、按名称搜索、编辑和确认删除。公式保存在后端数据库，所有访问者共享；本版本没有账号或私有公式。
-
-编辑时填写名称、公式，点击“识别参数”可设置中文名称；保存时也会自动识别。参数是单个小写字母（最多 8 个），e、pi 和函数名保留，乘号不可省略。名称和参数标签最多 40 字，公式最多 500 字。保存仅校验语法，因此 1/x 可以保存；实际定义域在使用时检查。
-
-点击“使用”，参数可填 -3、1/3、sqrt(2) 等，不能互相引用。本次 DEG/RAD 对公式及所有参数生效。后端将参数加括号代入，再用原安全解析器计算，代入总长度仍限制 500 字符。成功后结果、步骤及完整算式回到主计算器，历史中保存代入式。重复等号不新增记录，连续计算和撤销沿用原有行为。
-
-参数错误显示在字段下，公式整体错误显示在窗口底部，失败保留输入。共享公式有更新时间检查；若被他人修改，取消窗口、刷新列表并重新打开。删除公式不删除已有计算历史。请求期间禁止重复提交及关闭窗口，网络恢复后可重试。
-
-界面逻辑集中在 `src/formula-library.js`，前端不识别变量或计算参数；后端先发布并初始化新表，再更新前端。公式库依赖新版后端，普通计算接口保持兼容。
-
-
-## Current verification / 当前交付状态
-
-截至 2026-10-04，后端 GitHub CI 232 项测试通过（包含 PostgreSQL），覆盖率 98%；前端 12 项测试、语法检查和构建通过。科学运算、逐步化简、错误定位、撤销重做及共享公式库均已有实现，详见[验证摘要](docs/VERIFICATION.md)。
-
-Cloudflare 部署已完成，当前入口为 https://calculator.assignment1.workers.dev 。域名解析及数据库绑定已确认；当前网络访问仍出现连接重置，新地址的端到端操作和国内直连未完成复验。GitHub Actions 检查代码，不自动部署网站。
-
-[项目结构与功能图 / Project overview](docs/OVERVIEW.md)
+补充文档：[功能与验证记录](docs/VERIFICATION.md) · [设计说明（英文）](DESIGN.md) · [结构与功能图（英文）](docs/OVERVIEW.md)
