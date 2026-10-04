@@ -1,6 +1,6 @@
 # Calculator Frontend
 
-在线体验：[Cloudflare 计算器](https://calculator.hongxiang-jan777.workers.dev)。前端静态资源、Python API 和 D1 数据库已部署到 Cloudflare，更新方法见[后端部署说明](https://github.com/HX-Jan/calculator-backend/blob/main/cloudflare/README.md)。
+在线体验：[Cloudflare 计算器](https://calculator.assignment1.workers.dev)。前端静态资源、Python API 和 D1 数据库已部署到 Cloudflare，更新方法见[后端部署说明](https://github.com/HX-Jan/calculator-backend/blob/main/cloudflare/README.md)。
 
 A responsive calculator interface with keyboard input, light/dark themes, server-provided calculation steps, and searchable paginated history.
 
