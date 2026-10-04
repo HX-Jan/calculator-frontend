@@ -1,5 +1,7 @@
 import { reusable } from './result-view.js';
 
+const displayOperators = (value) => value.replaceAll('*', '×').replaceAll('/', '÷');
+
 // Locate syntax only; evaluation belongs exclusively to the backend.
 export function operandRange(text, start, end = start) {
   if (start !== end) return [start, end];
@@ -67,6 +69,10 @@ export class ExpressionEditor {
     });
     input.addEventListener('input', (event) => {
       if (event.isComposing) return;
+      const start = input.selectionStart;
+      const end = input.selectionEnd;
+      input.value = displayOperators(input.value);
+      input.setSelectionRange(start, end);
       this.record(this.nativeSnapshot || this.lastSnapshot);
       this.nativeSnapshot = null;
       this.closings.clear();
@@ -127,6 +133,7 @@ export class ExpressionEditor {
     if (this.phase === 'completed') this.phase = 'editing';
   }
   replace(start, end, value, caret = start + value.length, autoClosing = false) {
+    value = displayOperators(value);
     if (this.input.value.length - (end - start) + value.length > 500) {
       this.error('表达式不能超过 500 个字符。', true);
       return false;

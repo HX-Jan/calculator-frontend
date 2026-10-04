@@ -117,3 +117,5 @@ As of 2026-10-04, backend CI passed 234 tests with 98% coverage; frontend passed
 The desktop layout targets 1366×768. Main mobile controls are at least 44px, with history below the calculator. Fonts are bundled locally; licenses are in `public/licenses`.
 
 Additional documents: [Verification (Chinese)](docs/VERIFICATION.md) · [Design](DESIGN.md) · [Architecture and feature diagrams](docs/OVERVIEW.md)
+
+The expression field displays multiplication and division as `×` and `÷`. Typed or pasted `*` and `/` are converted automatically, including history reuse, function insertion, and undo/redo. The backend accepts both forms. After this update on 2026-10-05, all 19 frontend tests, syntax checks, and the build passed.

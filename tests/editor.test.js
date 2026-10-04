@@ -163,3 +163,26 @@ test('undo stack is bounded', () => {
   for (let i = 0; i < 150; i++) editor.insert('1');
   assert.equal(editor.undoStack.length, 100);
 });
+
+test('operator display covers insertion, reuse, wrapping and undo without moving selections', () => {
+  const { editor, input } = createEditor();
+  editor.set('6*7/2');
+  assert.equal(input.value, '6×7÷2');
+  input.setSelectionRange(2, 3);
+  editor.insert('8/4');
+  assert.equal(input.value, '6×8÷4÷2');
+  assert.equal(input.selectionStart, 5);
+  editor.history();
+  assert.equal(input.value, '6×7÷2');
+  assert.equal(input.selectionStart, 2);
+  assert.equal(input.selectionEnd, 3);
+  editor.history(true);
+  assert.equal(input.value, '6×8÷4÷2');
+  editor.set('4');
+  editor.wrap('1/(', ')');
+  assert.equal(input.value, '1÷(4)');
+  editor.answer = '2';
+  editor.phase = 'completed';
+  editor.insert('*');
+  assert.equal(input.value, '(2)×');
+});
