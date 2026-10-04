@@ -1,5 +1,7 @@
 # Clarity Calculator Frontend
 
+在线体验：[Cloudflare 计算器](https://hx-jan-calculator.hongxiang-jan777.workers.dev)。前端静态资源、Python API 和 D1 数据库已部署到 Cloudflare，更新方法见[后端部署说明](https://github.com/HX-Jan/calculator-backend/blob/main/cloudflare/README.md)。
+
 A responsive calculator interface with keyboard input, light/dark themes, server-provided calculation steps, and searchable paginated history.
 
 The interface uses a restrained monochrome palette, flat keys and a compact two-column layout. Light mode is the default; dark mode remains available. Manrope and JetBrains Mono are bundled locally. See [design decisions](DESIGN.md); font licenses are included in `public/licenses`.
@@ -20,7 +22,7 @@ npm run dev
 
 Open http://127.0.0.1:5173. On macOS/Linux use `cp .env.example .env`. For repeatable installation after cloning, use `npm ci`.
 
-`VITE_API_BASE_URL` defaults to `http://127.0.0.1:8000`. Set it in `.env` before starting or building. The backend must allow the frontend origin through `ALLOWED_ORIGINS`.
+`VITE_API_BASE_URL` defaults to `http://127.0.0.1:8000` in development and the current website origin in production. Set it in `.env` before starting or building for a separate API host. A separate backend must allow the frontend origin through `ALLOWED_ORIGINS`.
 
 The frontend does not initialize a database. Start the backend; it creates its database table. Calculation results and history are retrieved through HTTP. Theme, calculator mode and angle-unit preferences are stored in localStorage; history and shared formulas come from the backend database.
 

@@ -1,5 +1,7 @@
 // The browser sends expressions, never computed results.
-const baseUrl = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
+const baseUrl = (
+  import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? 'http://127.0.0.1:8000' : '')
+).replace(/\/$/, '');
 
 export async function request(path, options = {}) {
   let response;
