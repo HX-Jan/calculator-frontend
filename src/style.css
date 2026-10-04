@@ -876,10 +876,23 @@ dialog p {
   overflow-wrap: anywhere;
 }
 .formula-expression {
-  font-family: Arial, 'Microsoft YaHei', sans-serif;
-  overflow-wrap: anywhere;
-  color: var(--muted);
-  font-size: 15px;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 5px 0 8px;
+  color: var(--ink);
+  font-size: 18px;
+  line-height: 1.7;
+}
+.formula-expression:focus-visible {
+  outline: 1px solid var(--muted);
+  outline-offset: 3px;
+}
+.formula-expression .katex {
+  font-size: 1.08em;
+}
+#formula-editor-preview {
+  margin: 10px 0 0;
 }
 .formula-actions {
   display: flex;

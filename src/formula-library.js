@@ -1,6 +1,6 @@
 import { request } from './api.js';
+import { renderFormula } from './formula-view.js';
 const byId = (id) => document.getElementById(id);
-const math = (text) => text.replaceAll('*', '×').replaceAll('/', '÷');
 
 export function initFormulaLibrary({ isBusy, onResult }) {
   let editing = null,
@@ -88,7 +88,7 @@ export function initFormulaLibrary({ isBusy, onResult }) {
     name.textContent = item.name;
     const expression = document.createElement('p');
     expression.className = 'formula-expression';
-    expression.textContent = math(item.expression);
+    renderFormula(expression, item.expression);
     const actions = document.createElement('div');
     actions.className = 'formula-actions';
     actions.append(
@@ -112,6 +112,7 @@ export function initFormulaLibrary({ isBusy, onResult }) {
     byId('formula-editor-title').textContent = editing ? '编辑公式' : '新增公式';
     byId('formula-name').value = item?.name || '';
     byId('formula-expression').value = item?.expression || '';
+    renderFormula(byId('formula-editor-preview'), item?.expression || '');
     byId('formula-default-angle').value = item?.angle_mode || 'deg';
     byId('formula-editor-error').textContent = '';
     fields(byId('formula-labels'), item?.parameters || [], item?.parameter_labels || {}, {}, false);
@@ -121,7 +122,7 @@ export function initFormulaLibrary({ isBusy, onResult }) {
   function openUse(item) {
     using = item;
     byId('formula-use-title').textContent = item.name;
-    byId('formula-use-expression').textContent = math(item.expression);
+    renderFormula(byId('formula-use-expression'), item.expression);
     byId('formula-use-angle').value = item.angle_mode;
     byId('formula-use-error').textContent = '';
     fields(byId('formula-inputs'), item.parameters, {}, item.parameter_labels, true);
@@ -178,6 +179,9 @@ export function initFormulaLibrary({ isBusy, onResult }) {
   byId('formula-search').addEventListener('search', load);
   byId('formula-new').addEventListener('click', () => {
     if (!isBusy() && !pending) openEditor();
+  });
+  byId('formula-expression').addEventListener('input', (event) => {
+    renderFormula(byId('formula-editor-preview'), event.target.value);
   });
   byId('formula-identify').addEventListener('click', () =>
     busy('formula-editor', 'formula-editor-error', identify),

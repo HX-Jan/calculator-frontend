@@ -6,7 +6,7 @@ A responsive calculator with basic and scientific modes, a monochrome interface,
 
 [Live site](https://calculator.assignment1.workers.dev) · [Backend repository](https://github.com/HX-Jan/calculator-backend) · [Deployment guide (Chinese)](https://github.com/HX-Jan/calculator-backend/blob/main/cloudflare/README.md)
 
-![Calculator running locally](docs/preview.png)
+![Calculator running locally](docs/preview.jpg)
 
 Stack: HTML, CSS, JavaScript (ES modules) and Vite, with locally bundled fonts.
 
@@ -73,6 +73,8 @@ History and custom formulas are shared by all visitors; there are no accounts or
 
 The history/formula panel defaults to history. Builtins include circle area, circumference, the Pythagorean theorem and quadratic evaluation. Builtins are read-only but can be copied into custom entries. Custom formulas support creation, name search, editing and confirmed deletion.
 
+The list, parameter dialog and live editor preview use [KaTeX](https://katex.org/docs/api) for π, superscripts, roots, fractions and logarithm subscripts. The renderer and fonts are bundled locally without an external CDN. Editing and saving retain the original syntax, such as `pi*r^2`; omitted multiplication signs in display do not permit implicit multiplication in input.
+
 Names and parameter labels allow up to 40 characters; expressions allow 500. Parameters are up to eight individual lowercase letters, excluding e; pi and function names are reserved. Implicit multiplication is unsupported. Identify parameters to set Chinese labels; saving also identifies them and validates syntax only, so `1/x` can be saved.
 
 Parameter values may be `-3`, `1/3`, `sqrt(2)` and other scientific expressions, without references to other parameters. The selected DEG/RAD applies to all parameters and the formula. The backend substitutes each expression in parentheses, with a 500-character total limit. Success returns the expanded expression, result and steps to the calculator and saves the expanded expression in history.
@@ -90,9 +92,10 @@ Parameter errors appear beside fields; overall errors appear at the dialog botto
 | `src/steps-view.js` | Backend steps and UTF-16 highlights |
 | `src/history-utils.js` | Date grouping and current-page CSV |
 | `src/formula-library.js` | Formula list, editing and parameter dialogs |
+| `src/formula-notation.js` / `src/formula-view.js` | Convert expressions to mathematical notation without evaluation |
 | `src/style.css` / `index.html` | Responsive themes and accessible controls |
 
-Server text is rendered with `textContent`. The frontend does not identify formula variables or evaluate parameters or final results.
+Ordinary server text uses `textContent`. Formula display converts a bounded syntax to mathematical notation with KaTeX trusted links disabled; incomplete expressions fall back to text. Variable discovery, parameter validation and calculation remain on the backend.
 
 ## Checks and build
 
@@ -109,7 +112,7 @@ Stop the development server before previewing on the same port. Backend tests li
 
 Workers Static Assets serves the frontend alongside the same-origin Python API; D1 stores data. Build and deploy from the backend's `cloudflare` directory. `VITE_*` configuration is public and must not contain passwords or credentials. GitHub Actions runs checks, without automatic deployment.
 
-As of 2026-10-04, backend CI passed 234 tests with 98% coverage; frontend passed 12 tests, syntax checks and build. DNS records, deployment and D1 bindings are confirmed. Connections reset on the current network; end-to-end access on the current domain and direct access from mainland China have not been reverified.
+As of 2026-10-04, backend CI passed 234 tests with 98% coverage; frontend passed 18 tests, syntax checks and build. DNS records, deployment and D1 bindings are confirmed. Connections reset on the current network; end-to-end access on the current domain and direct access from mainland China have not been reverified.
 
 The desktop layout targets 1366×768. Main mobile controls are at least 44px, with history below the calculator. Fonts are bundled locally; licenses are in `public/licenses`.
 

@@ -10,7 +10,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "check": "node --check src/main.js && node --check src/api.js && node --check src/expression-editor.js && node --check src/result-view.js && node --check src/steps-view.js && node --check src/history-utils.js && node --check src/formula-library.js",
+    "check": "node --check src/main.js && node --check src/api.js && node --check src/expression-editor.js && node --check src/result-view.js && node --check src/steps-view.js && node --check src/history-utils.js && node --check src/formula-library.js && node --check src/formula-notation.js && node --check src/formula-view.js",
     "test": "node --test"
   },
   "devDependencies": {
@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@fontsource-variable/jetbrains-mono": "^5.3.0",
-    "@fontsource-variable/manrope": "^5.3.0"
+    "@fontsource-variable/manrope": "^5.3.0",
+    "katex": "0.19.0"
   }
 }

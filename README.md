@@ -6,7 +6,7 @@
 
 [在线体验](https://calculator.assignment1.workers.dev) · [后端仓库](https://github.com/HX-Jan/calculator-backend) · [部署说明](https://github.com/HX-Jan/calculator-backend/blob/main/cloudflare/README.md)
 
-![计算器本地运行界面](docs/preview.png)
+![计算器本地运行界面](docs/preview.jpg)
 
 技术栈：HTML、CSS、JavaScript（ES modules）和 Vite；字体随静态资源本地打包。
 
@@ -73,6 +73,8 @@ Ans 插入上次成功结果；MS 存储当前结果、MR 读取、MC 清除。A
 
 历史/公式切换默认显示历史。内置圆面积、圆周长、勾股定理和二次函数求值；内置项只读，可另存为自定义项。自定义项支持新增、名称搜索、编辑和确认删除。
 
+公式列表、参数窗口和编辑预览采用 [KaTeX](https://katex.org/docs/api) 数学排版，显示 π、上标、根号、分式和对数下标。排版库及字体随网站打包，不依赖外部 CDN。编辑和保存仍使用原表达式，例如 `pi*r^2`；展示时省略乘号不代表输入支持隐式乘法。
+
 公式名称和参数标签最多 40 字，表达式最多 500 字符。参数为最多 8 个单独小写字母，排除 e，pi 和函数名保留，不支持隐式乘法。点击“识别参数”设置中文名称；保存也会识别参数，只校验语法，因此 `1/x` 可以保存。
 
 使用时参数可填 `-3`、`1/3`、`sqrt(2)` 等，不能引用其他参数。本次 DEG/RAD 对所有参数及公式生效。后端将每个参数表达式加括号代入，总长度仍限制 500 字符；成功后主界面显示完整算式、结果和步骤，历史保存代入式。
@@ -90,9 +92,10 @@ Ans 插入上次成功结果；MS 存储当前结果、MR 读取、MC 清除。A
 | `src/steps-view.js` | 后端步骤及 UTF-16 范围高亮 |
 | `src/history-utils.js` | 日期分组与当前页 CSV 导出 |
 | `src/formula-library.js` | 公式列表、编辑与代入窗口 |
+| `src/formula-notation.js` / `src/formula-view.js` | 表达式转换为数学排版；不执行计算 |
 | `src/style.css` / `index.html` | 响应式主题与无障碍控件 |
 
-服务器文本通过 `textContent` 渲染。前端不识别公式变量，不计算参数或最终结果。
+普通服务器文本通过 `textContent` 渲染；公式仅将受限语法转换为数学排版，关闭 KaTeX 的可信链接功能。不完整表达式回退为文本。变量识别、参数校验和计算仍由后端完成。
 
 ## 检查与构建
 
@@ -109,7 +112,7 @@ npm run preview -- --port 5173
 
 前端由 Workers Static Assets 提供，与 Python API 同源，D1 保存数据。从后端仓库的 `cloudflare` 目录构建部署。`VITE_*` 配置公开可见，不能存放密码或登录凭据。GitHub Actions 运行检查，不自动部署。
 
-截至 2026-10-04，后端 CI 234 项通过，覆盖率 98%；前端 12 项测试、语法检查及构建通过。当前域名有 DNS 记录，部署与 D1 绑定已确认；当前网络连接重置，新地址端到端访问及国内直连仍未复验。
+截至 2026-10-04，后端 CI 234 项通过，覆盖率 98%；前端 18 项测试、语法检查及构建通过。当前域名有 DNS 记录，部署与 D1 绑定已确认；当前网络连接重置，新地址端到端访问及国内直连仍未复验。
 
 桌面布局以 1366×768 为目标，手机主要按钮至少 44px，历史位于计算器下方。使用本地打包字体，许可证见 `public/licenses`。
 
