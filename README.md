@@ -1,12 +1,12 @@
-# Clarity Calculator Frontend
+# Calculator Frontend
 
-在线体验：[Cloudflare 计算器](https://hx-jan-calculator.hongxiang-jan777.workers.dev)。前端静态资源、Python API 和 D1 数据库已部署到 Cloudflare，更新方法见[后端部署说明](https://github.com/HX-Jan/calculator-backend/blob/main/cloudflare/README.md)。
+在线体验：[Cloudflare 计算器](https://calculator.hongxiang-jan777.workers.dev)。前端静态资源、Python API 和 D1 数据库已部署到 Cloudflare，更新方法见[后端部署说明](https://github.com/HX-Jan/calculator-backend/blob/main/cloudflare/README.md)。
 
 A responsive calculator interface with keyboard input, light/dark themes, server-provided calculation steps, and searchable paginated history.
 
 The interface uses a restrained monochrome palette, flat keys and a compact two-column layout. Light mode is the default; dark mode remains available. Manrope and JetBrains Mono are bundled locally. See [design decisions](DESIGN.md); font licenses are included in `public/licenses`.
 
-![Clarity calculator local demonstration](docs/preview.png)
+![Calculator local demonstration](docs/preview.png)
 
 配套后端：[calculator-backend](https://github.com/HX-Jan/calculator-backend)。本项目由 AI 辅助实现与测试；请理解交互与接口代码，并按课程要求声明辅助范围。
 
@@ -52,12 +52,11 @@ npm run preview -- --port 5173
 
 Stop the development server before previewing on the same port. Backend tests live in the backend repository. Manual browser acceptance: verify `0.1+0.2`, `(1+2)*3`, `3*-2`, invalid input, zero division, refresh persistence, record deletion, search, pagination, theme persistence and mobile layout. Stop the backend and confirm the UI cannot create a new result.
 
-## Deployment by the owner
+## Cloudflare deployment
 
-Create a Render Static Site connected to this repository. Build command: `npm ci && npm run build`; publish directory: `dist`. Set `VITE_API_BASE_URL` to the backend HTTPS origin, then rebuild. Set the backend `ALLOWED_ORIGINS` to this site's origin. Public deployment is not automatically performed by this repository upload.
+The live frontend is served by Workers Static Assets alongside the Python API. Production requests use the same origin, so a separate API hostname is unnecessary. Build and deploy from the backend repository's `cloudflare` directory; see [deployment instructions](https://github.com/HX-Jan/calculator-backend/blob/main/cloudflare/README.md).
 
-Do not put database passwords in `VITE_*` variables: they are public client-side configuration. See [Render static sites](https://render.com/docs/static-sites) and [code standards](codestyle.md).
-
+Do not put database passwords or login tokens in `VITE_*` variables, because frontend configuration is public. GitHub Actions checks tests and builds; it does not deploy the site automatically.
 
 ## 普通与科学模式
 

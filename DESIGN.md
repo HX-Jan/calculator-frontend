@@ -1,4 +1,4 @@
-# Clarity interface direction
+# Calculator interface design
 
 Reference: [minimalist-ui](https://github.com/Leonxlnx/taste-skill/tree/main/skills/minimalist-skill), installed and read locally. The user's request for a simple calculator takes priority over the skill's optional editorial decoration and animation.
 
