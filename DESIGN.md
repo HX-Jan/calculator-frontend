@@ -1,6 +1,6 @@
 # Calculator interface design
 
-Design reference: [minimalist-ui](https://github.com/Leonxlnx/taste-skill/tree/main/skills/minimalist-skill). The project owner chose a simple monochrome calculator, with fewer permanent instructions and no decorative animation.
+Design reference: [minimalist-ui](https://github.com/Leonxlnx/taste-skill/tree/main/skills/minimalist-skill). The interface uses a monochrome palette, compact controls and minimal permanent instructions.
 
 ## Intent
 
