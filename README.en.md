@@ -8,6 +8,8 @@ A responsive calculator with basic and scientific modes, a monochrome interface,
 
 ![Calculator running locally](docs/preview.png)
 
+Stack: HTML, CSS, JavaScript (ES modules) and Vite, with locally bundled fonts.
+
 ## Project information
 
 Owner: [Hong Xiang / HX-Jan](https://github.com/HX-Jan), responsible for requirements, interface decisions and iteration priorities. [Development notes](docs/DEVELOPMENT.en.md)

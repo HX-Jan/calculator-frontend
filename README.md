@@ -8,6 +8,8 @@
 
 ![计算器本地运行界面](docs/preview.png)
 
+技术栈：HTML、CSS、JavaScript（ES modules）和 Vite；字体随静态资源本地打包。
+
 ## 项目信息
 
 负责人：[洪翔 / HX-Jan](https://github.com/HX-Jan)，负责需求规划、界面方案和功能迭代方向。[开发说明](docs/DEVELOPMENT.md)
