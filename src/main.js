@@ -4,7 +4,7 @@ import '@fontsource-variable/manrope';
 import '@fontsource-variable/jetbrains-mono';
 import './style.css';
 import { request } from './api.js';
-import { localDateKey, dateHeading, historyCsv } from './history-utils.js';
+import { localDateKey, dateHeading, historyCsv, historyExpression } from './history-utils.js';
 import { ExpressionEditor } from './expression-editor.js';
 import { ResultView, reusable, scientific } from './result-view.js';
 
@@ -396,7 +396,7 @@ function renderRecord(record) {
   article.className = 'history-record';
   const expression = document.createElement('p');
   expression.className = 'record-expression';
-  expression.textContent = record.expression.replaceAll('*', '×').replaceAll('/', '÷');
+  expression.textContent = historyExpression(record.expression);
   if (/\b(sin|cos|tan|asin|acos|atan)\s*\(/.test(record.expression)) {
     const unit = document.createElement('span');
     unit.className = 'angle-label';
@@ -426,17 +426,17 @@ function renderRecord(record) {
     if (!state.busy) {
       if (/[a-zπ^!]/i.test(record.expression)) setMode('scientific');
       setAngle(record.angle_mode === 'rad' ? 'rad' : 'deg');
-      setExpression(record.expression);
+      setExpression(historyExpression(record.expression));
     }
   });
   const remove = document.createElement('button');
   remove.type = 'button';
   remove.className = 'text-button delete';
   remove.textContent = '删除';
-  remove.setAttribute('aria-label', `删除记录 ${record.expression}`);
+  remove.setAttribute('aria-label', `删除记录 ${historyExpression(record.expression)}`);
   remove.addEventListener('click', () => {
     state.deleteId = record.id;
-    byId('delete-expression').textContent = `${record.expression} = ${record.result}`;
+    byId('delete-expression').textContent = `${historyExpression(record.expression)} = ${record.result}`;
     byId('delete-dialog').showModal();
   });
   for (const [label, value] of [

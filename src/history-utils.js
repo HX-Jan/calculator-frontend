@@ -1,3 +1,7 @@
+export function historyExpression(expression) {
+  return expression.replace(/\bpi\b/g, 'π').replaceAll('*', '×').replaceAll('/', '÷');
+}
+
 export function localDateKey(timestamp) {
   const date = new Date(timestamp);
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;

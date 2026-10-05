@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { historyCsv, dateHeading } from '../src/history-utils.js';
+import { historyCsv, dateHeading, historyExpression } from '../src/history-utils.js';
 test('CSV preserves quoted expressions, long decimals and formula safety', () => {
   const csv = historyCsv([
     {
@@ -26,4 +26,10 @@ test('date headings cross month boundaries using local calendar dates', () => {
   assert.equal(dateHeading(new Date(2026, 9, 1, 0), now), '今天');
   assert.equal(dateHeading(new Date(2026, 8, 30, 23), now), '昨天');
   assert.equal(dateHeading(new Date(2026, 8, 29, 23), now), '2026-09-29');
+});
+test('history displays mathematical symbols without changing identifier names', () => {
+  assert.equal(historyExpression('2*pi+pi/3'), '2×π+π÷3');
+  assert.equal(historyExpression('sin(pi/2)'), 'sin(π÷2)');
+  assert.equal(historyExpression('π*2+exp(1)'), 'π×2+exp(1)');
+  assert.equal(historyExpression('spin(2)'), 'spin(2)');
 });
