@@ -29,5 +29,8 @@ export function renderFormula(container, expression) {
       // An unfinished edit remains readable and never blocks saving or calculation.
     }
   }
-  container.textContent = expression.replaceAll('*', '×').replaceAll('/', '÷');
+  container.textContent = expression
+    .replace(/\bpi\b/g, 'π')
+    .replaceAll('*', '×')
+    .replaceAll('/', '÷');
 }

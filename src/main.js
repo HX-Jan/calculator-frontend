@@ -1,5 +1,6 @@
 import { initFormulaLibrary } from './formula-library.js';
 import { renderSteps } from './steps-view.js';
+import { renderFormula } from './formula-view.js';
 import '@fontsource-variable/manrope';
 import '@fontsource-variable/jetbrains-mono';
 import './style.css';
@@ -396,7 +397,7 @@ function renderRecord(record) {
   article.className = 'history-record';
   const expression = document.createElement('p');
   expression.className = 'record-expression';
-  expression.textContent = historyExpression(record.expression);
+  renderFormula(expression, record.expression);
   if (/\b(sin|cos|tan|asin|acos|atan)\s*\(/.test(record.expression)) {
     const unit = document.createElement('span');
     unit.className = 'angle-label';
@@ -436,7 +437,12 @@ function renderRecord(record) {
   remove.setAttribute('aria-label', `删除记录 ${historyExpression(record.expression)}`);
   remove.addEventListener('click', () => {
     state.deleteId = record.id;
-    byId('delete-expression').textContent = `${historyExpression(record.expression)} = ${record.result}`;
+    const formula = document.createElement('span');
+    renderFormula(formula, record.expression);
+    byId('delete-expression').replaceChildren(
+      formula,
+      document.createTextNode(` = ${record.result}`),
+    );
     byId('delete-dialog').showModal();
   });
   for (const [label, value] of [

@@ -381,9 +381,30 @@ kbd {
 }
 .record-expression {
   margin: 0 0 5px;
-  font-size: 12px;
+  font-size: 15px;
   color: var(--muted);
-  overflow-wrap: anywhere;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 5px 0 8px;
+  line-height: 1.7;
+}
+.record-expression .katex {
+  font-size: 1em;
+  display: inline-block;
+  white-space: nowrap;
+}
+.record-expression:focus-visible {
+  outline: 1px solid var(--muted);
+  outline-offset: 2px;
+}
+#delete-expression {
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 5px 0 8px;
+  line-height: 1.8;
+}
+#delete-expression .katex {
+  white-space: nowrap;
 }
 .record-result {
   margin: 0;
