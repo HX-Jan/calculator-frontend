@@ -45,6 +45,8 @@ Only real numbers are supported; matrices, complex numbers, equation solving and
 
 ## Input and results
 
+The expression field displays `×` and `÷`, automatically converting typed or pasted `*` and `/`. The backend accepts both forms.
+
 Type or use the keypad. Enter calculates; Escape clears input. After success, a digit, decimal point or constant starts a new expression; an operator continues from the result. Clicking the input or moving the cursor allows editing the original expression. Repeated equals without changes does not resubmit or save duplicates.
 
 Function keys wrap selected text or the complete operand before the cursor. With no operand, they insert paired parentheses. On a completed result, square, cube, reciprocal and sign keys immediately request backend calculation. Generated closing parentheses can be skipped; empty pairs can be deleted together. Plain text input is not automatically paired.
@@ -62,6 +64,8 @@ Undo/redo supports the latest 100 edits, including clearing, pasting, wrapping a
 ## Steps and history
 
 Steps are collapsed by default. Expand to see numbers, operation names, complete before/after expressions and highlighted operands. Trigonometric and inverse trigonometric steps include DEG/RAD. Values may be rounded; the last step matches the result. Long expressions scroll within the panel and support keyboard focus. Responses without trace fields fall back to the older step list.
+
+History and deletion dialogs use mathematical notation for π, superscripts, roots, nth roots, and fractions. Reuse restores an editable expression; copying and CSV export retain the original expression.
 
 History is grouped by local date and supports search, 20-row pages, copying and confirmed deletion. Reuse fills the expression without calculating; press equals again. Scientific reuse restores scientific mode and the recorded angle unit. Clearing search returns to page one.
 
@@ -112,10 +116,8 @@ Stop the development server before previewing on the same port. Backend tests li
 
 Workers Static Assets serves the frontend alongside the same-origin Python API; D1 stores data. Build and deploy from the backend's `cloudflare` directory. `VITE_*` configuration is public and must not contain passwords or credentials. GitHub Actions runs checks, without automatic deployment.
 
-As of 2026-10-04, backend CI passed 234 tests with 98% coverage; frontend passed 18 tests, syntax checks and build. The interface update is deployed to the existing calculator Worker with unchanged D1 bindings. Public accessibility is outside the scope of this review.
+As of 2026-10-05, backend CI passed 234 tests with 98% coverage; frontend passed 20 tests, syntax checks and build. The interface update is deployed to the existing calculator Worker with unchanged D1 bindings. Public accessibility is outside the scope of this review.
 
 The desktop layout targets 1366×768. Main mobile controls are at least 44px, with history below the calculator. Fonts are bundled locally; licenses are in `public/licenses`.
 
 Additional documents: [Verification (Chinese)](docs/VERIFICATION.md) · [Design](DESIGN.md) · [Architecture and feature diagrams](docs/OVERVIEW.md)
-
-The expression field displays multiplication and division as `×` and `÷`. Typed or pasted `*` and `/` are converted automatically, including history reuse, function insertion, and undo/redo. The backend accepts both forms. History and deletion dialogs use mathematical typesetting for π, superscripts, roots, nth roots, and fractions. History reuse restores an editable expression. Copying and CSV export retain the original expression. After the update on 2026-10-05, all 20 frontend tests, syntax checks, and the build passed. The project preview screenshot has been refreshed.

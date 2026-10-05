@@ -24,4 +24,4 @@ Preserves keyboard entry, visible focus, real backend calculations, error messag
 
 The right panel switches between history and shared formulas. Formula editing and parameter entry use compact native dialogs. Step traces use ordinary typography and ×/÷ symbols, with restrained highlighting and local horizontal scrolling. No decorative animation or persistent marketing text.
 
-Formula cards, parameter dialogs and the editor preview use locally bundled KaTeX for conventional mathematical notation. Input retains the backend expression syntax. Long formulas scroll inside their own region; incomplete edits fall back to text. No calculation is performed by the display converter.
+Formula cards, parameter dialogs, the editor preview, history and deletion dialogs use locally bundled KaTeX for conventional mathematical notation. Input retains the backend expression syntax. Long formulas scroll inside their own region; incomplete edits fall back to text. No calculation is performed by the display converter.

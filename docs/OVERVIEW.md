@@ -1,6 +1,6 @@
 # Current project overview
 
-Updated: 2026-10-04. The calculator supports basic/scientific modes, safe backend evaluation, persistent history, expression editing with undo/redo, step-by-step traces and a shared formula library.
+Updated: 2026-10-05. The calculator supports basic/scientific modes, safe backend evaluation, persistent history, expression editing with undo/redo, step-by-step traces and a shared formula library.
 
 - [Frontend](https://github.com/HX-Jan/calculator-frontend)
 - [Backend and API contract](https://github.com/HX-Jan/calculator-backend)
@@ -19,4 +19,4 @@ Updated: 2026-10-04. The calculator supports basic/scientific modes, safe backen
 
 ![Request flow](flow.png)
 
-The frontend never evaluates expressions. Formula parameters and calculations are handled by the backend; results remain strings. History and custom formulas are shared by all visitors without accounts. Successful calculations are committed before returning success. Public hosting uses Cloudflare Python Workers, Static Assets and persistent D1 storage. API checks were completed on the previous domain. The current domain resolves, but end-to-end access has not been reverified because connections are reset on the present network.
+The frontend never evaluates expressions. Formula parameters and calculations are handled by the backend; results remain strings. History and custom formulas are shared by all visitors without accounts. Successful calculations are committed before returning success. Public hosting uses Cloudflare Python Workers, Static Assets and persistent D1 storage. Public accessibility is outside the scope of this documentation review.
